@@ -17,11 +17,7 @@ const defineVoter = new mongoose.Schema({
       },
       voterEmail: {
         type: String,
-      },
-      hasVoted: {
-        type: Boolean,
-        default: false,
-      },
+      }      
     }),
   },
 });

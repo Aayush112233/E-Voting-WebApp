@@ -55,11 +55,10 @@ class ElectionController {
           next({ status: 400, message: err });
         } else {
           const email = req.user.email;
-
           if (req.body.isVoter) {
             voterDefine.save();
           }
-
+          eletionCode.save();
           const html = await ejs.renderFile("./Pages/ElectionCode.html", {
             code: eletionCode.code,
             userName: req.user.firstName + " " + req.user.lastName,
@@ -71,7 +70,6 @@ class ElectionController {
             subject: "Election Code - Evoting",
             html: html,
           });
-          eletionCode.save();
           res.status(200).json({
             result: req.body,
             message: "Election Created Sucessfully",
@@ -199,7 +197,7 @@ class ElectionController {
         },
       },
     ]).exec(function (err, electionDetails) {
-      if (err) throw next({ status: 500, message: "Failed to retrive data" });
+      if (err) throw next({ status: 500, message: err });
       res.status(200).json({
         electionDetails,
       });
@@ -395,7 +393,6 @@ class ElectionController {
 
   static getElectionByVoters = async (req, res, next) => {
     const { id } = req.params;
-    console.log("The id", id);
     const idPattern = /^[0-9a-fA-F]{24}$/;
     if (!idPattern.test(id)) {
       return next({ status: 400, message: "Invalid election ID" });
@@ -516,6 +513,159 @@ class ElectionController {
       });
     } catch (error) {
       next({ status: 400, message: "Not Found" });
+    }
+  };
+
+  static getVotersByElection = async (req, res, next) => {
+    const { id } = req.params;
+    const isIdValid = ObjectId.isValid(id);
+    if (!isIdValid) {
+      next({ status: 400, message: "Invalid id" });
+      return;
+    }
+
+    const voters = await PreDefinedVoter.findOne({ electionId: id });
+    if (voters) {
+      res.status(200).json({
+        voters,
+      });
+    } else {
+      next({ status: 400, message: "No Voters are found" });
+    }
+  };
+
+  static UpdateElectionDetails = async (req, res, next) => {
+    const { id } = req.params;
+    const {
+      electionName,
+      electionStartDate,
+      electionEndDate,
+      organizationName,
+    } = req.body;
+    if (
+      electionName &&
+      electionStartDate &&
+      electionEndDate &&
+      organizationName
+    ) {
+      ElectionModel.findByIdAndUpdate(
+        { _id: id },
+        {
+          $set: req.body,
+        },
+        {
+          new: true,
+        },
+        (err, done) => {
+          if (err) {
+            next({ status: 400, message: err });
+          } else {
+            res.status(200).json({
+              result: req.body,
+              message: "Election Information Updated Sucessfully",
+            });
+          }
+        }
+      );
+    } else {
+      next({ status: 400, message: "Invalid Fields" });
+    }
+  };
+
+  static UpdatePostionDetails = async (req, res, next) => {
+    const { id } = req.params;
+    const { position } = req.body;
+    if (position.length > 0) {
+      ElectionModel.findByIdAndUpdate(
+        { _id: id },
+        {
+          $set: req.body,
+        },
+        {
+          new: true,
+        },
+        (err, done) => {
+          if (err) {
+            next({ status: 400, message: err });
+          } else {
+            res.status(200).json({
+              result: req.body,
+              message: "Postions Updated Sucessfully",
+            });
+          }
+        }
+      );
+    }
+  };
+  static UpdateCandidateDetails = async (req, res, next) => {
+    const { id } = req.params;
+    const { candidate } = req.body;
+    if (candidate.length > 0) {
+      ElectionModel.findByIdAndUpdate(
+        { _id: id },
+        {
+          $set: req.body,
+        },
+        {
+          new: true,
+        },
+        (err, done) => {
+          if (err) {
+            next({ status: 400, message: err });
+          } else {
+            res.status(200).json({
+              result: req.body,
+              message: "Candidate Updated Sucessfully",
+            });
+          }
+        }
+      );
+    }
+  };
+
+  static UpdateVotersForElection = async (req, res, next) => {
+    const { id } = req.params;
+    const { voters } = req.body;
+    const electionStatus = await ElectionModel.findOne({ _id: id });
+
+    if (electionStatus) {
+      if (electionStatus.isVoter) {
+        // Update the existing document with new voters array
+        console.log("The voters", voters)
+        const updatedPreVoterInfo = await PreDefinedVoter.findOneAndUpdate(
+          { electionId: id },
+          {
+            $set: {voters},
+          },
+          { new: true }
+        );
+
+        res.status(200).json({
+          message: "Voters updated successfully",
+          data: updatedPreVoterInfo,
+        });
+      } else {
+        // Create a new document with the provided voters array
+        const newPreDefinedVoter = new PreDefinedVoter({
+          electionId: id,
+          voters: voters,
+        });
+        const savedPreDefinedVoter = await newPreDefinedVoter.save();
+        if (savedPreDefinedVoter) {
+          const updatedElection = await ElectionModel.findByIdAndUpdate(
+            { _id: id },
+            { isVoter:true },
+            { new: true }
+          );
+        }
+
+        res.status(201).json({
+          message: "Voters added successfully",
+          data: savedPreDefinedVoter,
+        });
+      }
+    } else {
+      next({ status: 400, message: "No Election Found" });
     }
   };
 }

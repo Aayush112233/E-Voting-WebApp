@@ -32,30 +32,50 @@ const PreDefineVoters = ({
   const dispatch = useDispatch();
   const { formData } = useSelector((state) => state.stepperState);
   const [voters, setVoters] = useState(null);
+  const [file, setFile] = useState("");
+
 
   function handleFileUpload(event) {
     const file = event.target.files[0];
     const reader = new FileReader();
-
+  
     reader.onload = function (event) {
       const data = new Uint8Array(event.target.result);
       const workbook = XLSX.read(data, { type: "array" });
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
       const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-
-      if (json[0].length !== 3) {
-        alert("Please refer to the given example and upload again.");
+      const cleanedJson = json.filter(
+        (row) => row.some((val) => !!val) // Check if the row has at least one non-empty value
+      );
+      const voterIds = new Set();
+      const voterEmails = new Set();
+      const duplicates = [];  
+  
+      // Check for duplicate voterId and voterEmail
+      cleanedJson.forEach((row, index) => {
+        const [voterId, voterName, voterEmail] = row;
+        if (voterIds.has(voterId)) {
+          duplicates.push(`Duplicate voterId at row ${index + 1}: ${voterId}`);
+        } else {
+          voterIds.add(voterId);
+        }
+        if (voterEmails.has(voterEmail)) {
+          duplicates.push(
+            `Duplicate voterEmail at row ${index + 1}: ${voterEmail}`
+          );
+        } else {
+          voterEmails.add(voterEmail);
+        }
+      });
+      if (duplicates.length > 0) {
+        alert("Unable to upload, Validation Failure")
+        setFile("")
         return;
       }
-      const voters = json.slice(1).map((row) => ({
-        voterId: row[0],
-        voterName: row[1],
-        voterEmail:row[2]
-      }));
-
+  
       setVoters(voters);
     };
-
+  
     reader.readAsArrayBuffer(file);
   }
 
@@ -80,7 +100,7 @@ const PreDefineVoters = ({
             component="label"
           >
             Upload
-            <input hidden type="file" onChange={handleFileUpload} />
+            <input value={file} hidden type="file" onChange={handleFileUpload} />
           </Button>
         </Grid>
         <Grid item xs={12}>

@@ -291,7 +291,7 @@ const JoinElection = ({ setSelectedLink, link }) => {
                           <AlertTitle
                             sx={{ color: "green", fontWeight: "bold" }}
                           >
-                            {item.election_info[0].electionName}
+                            {item.election_info[0]?.electionName}
                           </AlertTitle>
                           <Box
                             sx={{
@@ -303,9 +303,9 @@ const JoinElection = ({ setSelectedLink, link }) => {
                             <div>
                               <ElectionCount
                                 startDate={
-                                  item.election_info[0].electionStartDate
+                                  item.election_info[0]?.electionStartDate
                                 }
-                                endDate={item.election_info[0].electionEndDate}
+                                endDate={item.election_info[0]?.electionEndDate}
                                 setChange={setChange}
                               />
                             </div>
@@ -345,15 +345,15 @@ const JoinElection = ({ setSelectedLink, link }) => {
                             gap: "0.7rem",
                           }}
                         >
-                          {item.election_info[0].isVoter ? (
+                          {item.election_info[0]?.isVoter ? (
                             <>
                               <Button
                                 variant="outlined"
                                 disabled={
                                   item.votingStatus ||
                                   !handleValidTime(
-                                    item.election_info[0].electionStartDate,
-                                    item.election_info[0].electionEndDate
+                                    item.election_info[0]?.electionStartDate,
+                                    item.election_info[0]?.electionEndDate
                                   )
                                 }
                                 startIcon={
@@ -390,8 +390,8 @@ const JoinElection = ({ setSelectedLink, link }) => {
                               disabled={
                                 item.votingStatus ||
                                 !handleValidTime(
-                                  item.election_info[0].electionStartDate,
-                                  item.election_info[0].electionEndDate
+                                  item.election_info[0]?.electionStartDate,
+                                  item.election_info[0]?.electionEndDate
                                 )
                               }
                               startIcon={

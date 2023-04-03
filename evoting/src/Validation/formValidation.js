@@ -94,6 +94,25 @@ export const ElectionAddSchema = object({
   organizationName: string().required("Organization Name is required."),
 });
 
+export const ElectionUpdateSchema = object({
+  electionName: string().required("Provide an election name."),
+  electionStartDate: string()
+    .required("Starting Date is required.")
+    .test("after-today", "Start date must be today or later", function (value) {
+      return new Date(value) >= new Date(new Date().setHours(0, 0, 0, 0));
+    }),
+  electionEndDate: string()
+    .required("Ending Date is required.")
+    .test(
+      "after-start-date",
+      "End date must be after start date",
+      function (value) {
+        return new Date(value) > new Date(this.parent.electionStartDate);
+      }
+    ),
+  organizationName: string().required("Organization Name is required."),
+});
+
 export const PositionAddSchema = object({
   positionName: string().required("Provide a position name."),
 });
@@ -114,4 +133,11 @@ export const ResetSchema = object({
   confirmPassword: string()
     .required("Confirm Password is required")
     .oneOf([ref("newPassword"), null], "Confirm Password does not match"),
+});
+
+
+export const VoterAddSchema = object({
+  voterId: string().required("Voter Id is required"),
+  voterName: string().required("Voter Name is required"),
+  voterEmail: string().email().required("Email of the voter is required"),
 });

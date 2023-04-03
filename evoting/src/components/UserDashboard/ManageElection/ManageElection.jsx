@@ -31,7 +31,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
-export default function ManageElection({ elections }) {
+export default function ManageElection({ elections, refreshTable }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedElection, setSelectedElection] = useState({});
   const [open, setOpen] = useState(false);
@@ -153,7 +153,7 @@ export default function ManageElection({ elections }) {
           </TableBody>
         </Table>
       </TableContainer>
-      <ElectionView open={open} setOpen={setOpen} election={selectedElection}/>
+      <ElectionView open={open} setOpen={setOpen} election={selectedElection} refreshTable={refreshTable} />
     </>
   );
 }

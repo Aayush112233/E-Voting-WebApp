@@ -1,46 +1,51 @@
 import { Box, Button, Grid, TextField } from "@mui/material";
 import React from "react";
-import { ElectionAddSchema } from "../../../Validation/formValidation";
+import { ElectionUpdateSchema } from "../../../Validation/formValidation";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useDispatch, useSelector } from "react-redux";
-import { StepperService } from "../../../Services/stepperServices";
 import { useEffect } from "react";
-import Loader from "../../../Reusables/Loader";
-const ElectionDetails = ({
-  activeStep,
-  handleBack,
-  handleNext,
-  classes,
-  steps,
-}) => {
-  const dispatch = useDispatch();
-  const { formData } = useSelector((state) => state.stepperState);
+import { useState } from "react";
+import { API } from "../../../baseUrlProvider";
+import { toast } from "react-toastify";
+
+const ElectionDetails = ({ electionDetails, refreshTable, setOpen}) => {
   const {
     register: election,
     handleSubmit: handleElection,
     formState: { errors: electionError },
     setValue,
   } = useForm({
-    resolver: yupResolver(ElectionAddSchema),
+    resolver: yupResolver(ElectionUpdateSchema),
   });
 
-  const handleForm = (data) => {
-    dispatch(StepperService(data));
-    handleNext();
-  };
-
   useEffect(() => {
-    if (Object.keys(formData).length > 0) {
-      setValue("electionName", formData.electionName);
-      setValue("electionStartDate", formData.electionStartDate);
-      setValue("electionEndDate", formData.electionEndDate);
-      setValue("organizationName", formData.organizationName);
+    if (Object.keys(electionDetails).length > 0) {
+      setValue("electionName", electionDetails.electionName);
+      setValue("electionStartDate", electionDetails.electionStartDate);
+      setValue("electionEndDate", electionDetails.electionEndDate);
+      setValue("organizationName", electionDetails.organizationName);
     }
-  }, [formData]);
+  }, [electionDetails]);
+
+  console.log(electionDetails)
+  const handleForm = (data) => {
+    API.put("/election/updateElectionDetails/"+electionDetails.id, data).then((res)=>{
+      toast.success(res.data.message)
+      refreshTable()
+      setOpen(false)
+    }).catch((err)=>{
+      toast.success(err.response.data.message)
+    })
+  };
   return (
     <Box sx={{ width: 1 }}>
-      <Grid container spacing={2} sx={{ width: "100%" }}>
+      <Grid
+        container
+        spacing={2}
+        sx={{ width: "100%" }}
+        justifyContent={"center"}
+      >
         <Grid item xs={12} sm={6}>
           <TextField
             error={!!electionError.electionName}
@@ -114,23 +119,13 @@ const ElectionDetails = ({
             fullWidth
           />
         </Grid>
-        <Grid item xs={12} sm={5}>
-          <Button
-            disabled={activeStep === 0}
-            onClick={handleBack}
-            className={classes.button}
-          >
-            Back
-          </Button>
-
+        <Grid item>
           <Button
             variant="contained"
             color="primary"
-            // onClick={handleElection(handleNext)}
             onClick={handleElection(handleForm)}
-            // className={classes.button}
           >
-            {activeStep === steps.length - 1 ? "Submit" : "Next"}
+            Update
           </Button>
         </Grid>
       </Grid>

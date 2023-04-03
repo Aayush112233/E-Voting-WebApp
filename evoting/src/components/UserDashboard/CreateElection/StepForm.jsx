@@ -60,16 +60,19 @@ export default function StepForm({ setSelectedLink, link }) {
 
 
   const [elections, setElections] = useState([]);
-  console.log("The is loading", isLoading)
   useEffect(() => {
-    API.get("/election/getElectionByCreater")
-      .then((res) => {
-        setElections(res.data.elections);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    getElectionByCreater()
   }, []);
+
+  const getElectionByCreater =() =>{
+    API.get("/election/getElectionByCreater")
+    .then((res) => {
+      setElections(res.data.elections);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+  }
 
   const getStepContent = (step) => {
     switch (step) {
@@ -292,7 +295,7 @@ export default function StepForm({ setSelectedLink, link }) {
                   overflow:"auto"
                 }}
               >
-                <ManageElection elections={elections}/>
+                <ManageElection elections={elections} refreshTable={getElectionByCreater}/>
               </div>
             </Card>
           </>
