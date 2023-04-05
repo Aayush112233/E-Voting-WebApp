@@ -482,7 +482,7 @@ class ElectionController {
           );
           voteCounts.push({
             electionId: electionId,
-            electionName: election.name,
+            electionName: election.electionName,
             month: election.month,
             totalVotes: totalVotes,
           });
@@ -631,11 +631,11 @@ class ElectionController {
     if (electionStatus) {
       if (electionStatus.isVoter) {
         // Update the existing document with new voters array
-        console.log("The voters", voters)
+        console.log("The voters", voters);
         const updatedPreVoterInfo = await PreDefinedVoter.findOneAndUpdate(
           { electionId: id },
           {
-            $set: {voters},
+            $set: { voters },
           },
           { new: true }
         );
@@ -654,7 +654,7 @@ class ElectionController {
         if (savedPreDefinedVoter) {
           const updatedElection = await ElectionModel.findByIdAndUpdate(
             { _id: id },
-            { isVoter:true },
+            { isVoter: true },
             { new: true }
           );
         }
@@ -666,6 +666,28 @@ class ElectionController {
       }
     } else {
       next({ status: 400, message: "No Election Found" });
+    }
+  };
+
+  static getAllElections = async (req, res, next) => {
+    try {
+      const elections = await ElectionModel.find({});
+      const electionsWithCodes = await Promise.all(
+        elections.map(async (election) => {
+          const code = await ElectionCodeModel.findOne({
+            electionId: election._id,
+          });
+          return {
+            ...election.toObject(),
+            code: code.code,
+          };
+        })
+      );
+      res.status(200).json({
+        elections: electionsWithCodes,
+      });
+    } catch (error) {
+      next({ status: 400, message: "Not Found" });
     }
   };
 }

@@ -141,3 +141,8 @@ export const VoterAddSchema = object({
   voterName: string().required("Voter Name is required"),
   voterEmail: string().email().required("Email of the voter is required"),
 });
+export const ContactUsSchema = object({
+  fullName: string().required("Full Name is required"),
+  email: string().required("Email is required"),
+  message: string().required("Write Something!"),
+});

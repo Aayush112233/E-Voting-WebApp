@@ -33,6 +33,7 @@ router.get(
 );
 router.get("/getElectionByCreater", checkAuth, ElectionController.getElectionByCreater);
 router.get("/getVotersByElection/:id", ElectionController.getVotersByElection);
+router.get("/findAllElections", checkAuth, ElectionController.getAllElections)
 router.put("/updateElectionDetails/:id", ElectionController.UpdateElectionDetails);
 router.put("/updatePositionDetails/:id", ElectionController.UpdatePostionDetails);
 router.put("/updateCandidateDetails/:id", ElectionController.UpdateCandidateDetails);

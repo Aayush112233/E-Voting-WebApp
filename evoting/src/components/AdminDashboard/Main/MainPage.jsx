@@ -18,8 +18,17 @@ import ListItemText from "@mui/material/ListItemText";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
 import Avatar from "@mui/material/Avatar";
 import { useSelector } from "react-redux";
+import { Chart as ChartJs, BarElement, Tooltip,Legend,CategoryScale,LinearScale } from "chart.js";
 
 import userImage from "../../../assets/images/dashboardUser.png";
+
+ChartJs.register(
+  BarElement,
+  Tooltip,
+  Legend,
+  CategoryScale,
+  LinearScale
+)
 
 const MainPage = ({ setSelectedLink, link }) => {
   const { userData } = useSelector((state) => state.userState);

@@ -5,6 +5,7 @@ import { ObjectId } from "mongodb";
 import transporter from "../config/emailConfig.js";
 import ejs from "ejs";
 import ImageModel from "../models/image.model.js";
+import ContactUs from "../models/ContactUsModel.js";
 
 class UserController {
   static userRegistration = async (req, res, next) => {
@@ -337,6 +338,19 @@ class UserController {
       }
     );
   };
+
+
+  static getAllInquiries = async(req,res,next) =>{
+    const inquiries = await ContactUs.find({})
+    if(inquiries){
+      res.status(200).json({
+        inquiries
+      })
+    }
+    else{
+      next({status:400, message:"No Inquires"})
+    }
+  }
 }
 
 export default UserController;

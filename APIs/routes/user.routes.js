@@ -4,6 +4,7 @@ import checkAuth from "../middlewares/auth.middleware.js";
 import Grid from "gridfs-stream";
 import mongoose from "mongoose";
 import uploadImage from "../middlewares/image.upload.middleware.js";
+import ContactMail from "../controllers/contact.mail.js";
 const router = express.Router();
 const conn = mongoose.connection;
 let gfs;
@@ -18,6 +19,8 @@ router.post("/login", UserController.login);
 router.post('/upload/:id?', UserController.ProfileImage);
 //RESET PASSWORD
 router.post("/sendResetEmail", UserController.SendEmailToReset);
+router.post("/contactUs", ContactMail.GetContactInfo);
+router.post("/replyInquiry", ContactMail.ReplyInquiry);
 router.post("/passwordReset/:id/:token", UserController.ResetUserPassword);
 router.post(
   "/changePassword/:userId",
@@ -25,6 +28,7 @@ router.post(
   UserController.changePassword
 );
 router.get("/loggedInInfo", checkAuth, UserController.loggedInUserInfo);
+router.get("/getAllInquiries", checkAuth, UserController.getAllInquiries);
 router.put("/update/:userId", checkAuth, UserController.UserUpdate);
 router.delete("/delete/:userId", checkAuth, UserController.UserDelete);
 router.get("/getAll", checkAuth, UserController.GetAllUser);

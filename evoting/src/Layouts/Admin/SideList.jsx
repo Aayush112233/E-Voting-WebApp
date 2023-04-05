@@ -130,7 +130,7 @@ export const SideList = ({ open, setOpen }) => {
         component: ProfileManagement,
       },
       {
-        title: "System Reports",
+        title: "System Inquiries",
         icon: <TbMessageReport />,
         link: "systemReport",
         component: SystemReport,

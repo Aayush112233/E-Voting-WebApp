@@ -14,8 +14,21 @@ import { alpha, styled } from "@mui/material/styles";
 import "../assets/customCss/wave.css";
 import ContactImage from "../assets/images/Contact.png";
 import EmailImage from "../assets/images/EmailImage.jpg";
+import axios from "axios";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { toast } from "react-toastify";
+import { ContactUsSchema } from "../Validation/formValidation";
 
 export const ContactUs = () => {
+  const {
+    register: contact,
+    handleSubmit: handleContactSubmit,
+    formState: { errors: contactError },
+    setValue,
+  } = useForm({
+    resolver: yupResolver(ContactUsSchema),
+  });
   const CustomBox = styled(Box)(({ theme }) => ({
     display: "flex",
     justifyContent: "center",
@@ -60,6 +73,21 @@ export const ContactUs = () => {
       fontSize: "40px",
     },
   }));
+
+  const handleSendMessage = (data) => {
+    axios
+      .post(`${process.env.REACT_APP_API_URL}/user/contactUs`, data)
+      .then((res) => {
+        toast.success("Message sent successfully");
+        setValue("fullName", "")
+        setValue("email", "")
+        setValue("message", "")
+      })
+      .catch((err) => {
+        toast.error(err.response.data.message);
+      });
+  };
+
   return (
     <>
       <Box
@@ -118,6 +146,11 @@ export const ContactUs = () => {
                     label="Full Name"
                     variant="standard"
                     fullWidth
+                    error={!!contactError.fullName}
+                    helperText={
+                      contactError.fullName ? contactError.fullName.message : ""
+                    }
+                    {...contact("fullName")}
                   />
                 </Grid>
                 <Grid item xs={12}>
@@ -126,6 +159,11 @@ export const ContactUs = () => {
                     label="Email"
                     variant="standard"
                     fullWidth
+                    error={!!contactError.email}
+                    helperText={
+                      contactError.email ? contactError.email.message : ""
+                    }
+                    {...contact("email")}
                   />
                 </Grid>
                 <Grid item xs={12}>
@@ -136,15 +174,18 @@ export const ContactUs = () => {
                     rows={4}
                     variant="standard"
                     fullWidth
+                    error={!!contactError.message}
+                    helperText={
+                      contactError.message ? contactError.message.message : ""
+                    }
+                    {...contact("message")}
                   />
                 </Grid>
                 <Grid item xs={12}>
                   <Button
                     variant="contained"
                     sx={{ display: "flex", flexDirection: "row-reverse" }}
-                    onClick={() => {
-                      alert("I will send an email");
-                    }}
+                    onClick={handleContactSubmit(handleSendMessage)}
                   >
                     <Typography>Send</Typography>
                   </Button>

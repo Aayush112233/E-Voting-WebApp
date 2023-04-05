@@ -75,7 +75,7 @@ const ManageUser = () => {
   };
 
   const editUser = async (user) => {
-    await setEditUser(user);
+    setEditUser(user);
     setEditOpen(true);
   };
 
@@ -180,29 +180,26 @@ const ManageUser = () => {
           deleteUserDetails.firstName + " " + deleteUserDetails.lastName
         }`}
       />
-        <Modal
-          open={editOpen}
-          onClose={handleClose}
-          aria-labelledby="modal-modal-title"
-          aria-describedby="modal-modal-description"
-        >
-          <Box sx={style}>
-            <Typography
-              id="modal-modal-title"
-              variant="h5"
-              component="h2"
-              fontWeignt="bold"
-            >
-              Edit User
-            </Typography>
-            <Grid container spacing={2} padding={2}>
-              <EditUser
-                userDetails={editUserDetails}
-                setEditOpen={setEditOpen}
-              />
-            </Grid>
-          </Box>
-        </Modal>
+      <Modal
+        open={editOpen}
+        onClose={handleClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={style}>
+          <Typography
+            id="modal-modal-title"
+            variant="h5"
+            component="h2"
+            fontWeignt="bold"
+          >
+            Edit User
+          </Typography>
+          <Grid container spacing={2} padding={2}>
+            <EditUser userDetails={editUserDetails} setEditOpen={setEditOpen} />
+          </Grid>
+        </Box>
+      </Modal>
     </>
   );
 };
