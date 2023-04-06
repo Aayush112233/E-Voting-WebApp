@@ -15,6 +15,8 @@ import { useRef } from "react";
 import { AboutUs } from "../components/AboutUs";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
+import { useEffect } from "react";
+import axios from "axios";
 
 export const LandingPage = (props) => {
   const navigate = useNavigate();
@@ -40,6 +42,14 @@ export const LandingPage = (props) => {
       }
     }
   };
+
+  useEffect(()=>{
+    axios.get(`${process.env.REACT_APP_API_URL}/user/addPageViews`)
+    .then((response) => {console.log(response)})
+    .catch((err) => {
+      console.error(err);
+    });
+  },[])
 
   const CustomBox = styled(Box)(({ theme }) => ({
     display: "flex",

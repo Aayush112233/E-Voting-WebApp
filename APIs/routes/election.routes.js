@@ -32,8 +32,10 @@ router.get(
   ElectionController.getAllVoteCountByElection
 );
 router.get("/getElectionByCreater", checkAuth, ElectionController.getElectionByCreater);
+router.get("/getTotalNoOfElection", ElectionController.getTotalNoofElections);
 router.get("/getVotersByElection/:id", ElectionController.getVotersByElection);
 router.get("/findAllElections", checkAuth, ElectionController.getAllElections)
+router.get("/getTotalNoOfVotes", checkAuth, ElectionController.getTotalNoofVotes)
 router.put("/updateElectionDetails/:id", ElectionController.UpdateElectionDetails);
 router.put("/updatePositionDetails/:id", ElectionController.UpdatePostionDetails);
 router.put("/updateCandidateDetails/:id", ElectionController.UpdateCandidateDetails);

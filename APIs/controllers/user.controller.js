@@ -6,6 +6,7 @@ import transporter from "../config/emailConfig.js";
 import ejs from "ejs";
 import ImageModel from "../models/image.model.js";
 import ContactUs from "../models/ContactUsModel.js";
+import PageView from "../models/userVisit.model.js";
 
 class UserController {
   static userRegistration = async (req, res, next) => {
@@ -131,8 +132,19 @@ class UserController {
     }
   };
 
+  static getTotalNoofUsers = async (req, res, next) => {
+    try {
+      const totalUsers = await UserModel.countDocuments({});
+      res.json({
+        totalUsers,
+      });
+    } catch (err) {
+      next(err);
+    }
+  };
+
   static GetAllUser = async (req, res, next) => {
-    const userInfo = await UserModel.find({}).select("-password");
+    const userInfo = await UserModel.find({}).select("-password").sort({createdAt: -1});
     if (userInfo) {
       res.status(200).json({
         userInfo: userInfo,
@@ -325,7 +337,7 @@ class UserController {
     const { image } = req.body;
     UserModel.findByIdAndUpdate(
       { _id: id },
-      { $set: { profileImage: image } }, 
+      { $set: { profileImage: image } },
       { new: true },
       (err, updatedUser) => {
         if (err) {
@@ -339,18 +351,45 @@ class UserController {
     );
   };
 
-
-  static getAllInquiries = async(req,res,next) =>{
-    const inquiries = await ContactUs.find({})
-    if(inquiries){
+  static getAllInquiries = async (req, res, next) => {
+    const inquiries = await ContactUs.find({});
+    if (inquiries) {
       res.status(200).json({
-        inquiries
-      })
+        inquiries,
+      });
+    } else {
+      next({ status: 400, message: "No Inquires" });
     }
-    else{
-      next({status:400, message:"No Inquires"})
+  };
+
+  static postPageViews = async (req, res, next) => {
+    try {
+      // Retrieve the page view data from MongoDB
+      const pageView = await PageView.findOne();
+      // Increment the counter by one and update the document
+      pageView.counter++;
+      await pageView.save();
+
+      // Return the updated counter value to the client
+      res.status(200).json({ count: pageView.counter });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Server error" });
     }
-  }
+  };
+  static getPageViews = async (req, res, next) => {
+    try {
+      // Retrieve the page view data from MongoDB
+      const pageView = await PageView.findOne();
+      // Increment the counter by one and update the document
+
+      // Return the updated counter value to the client
+      res.status(200).json({ count: pageView.counter });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Server error" });
+    }
+  };
 }
 
 export default UserController;

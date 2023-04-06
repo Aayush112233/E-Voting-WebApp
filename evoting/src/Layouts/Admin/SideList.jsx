@@ -198,7 +198,7 @@ export const SideList = ({ open, setOpen }) => {
       </Drawer>
       <Box
         component="main"
-        sx={{ flexGrow: 1, p: 3, minHeight: "92vh", backgroundColor: "#e6e6e6"}}
+        sx={{ flexGrow: 1, p: 3, backgroundColor: "white"}}
       >
         <DrawerHeader />
         <Content setSelectedLink={setSelectedLink} />

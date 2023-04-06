@@ -3,6 +3,9 @@ import { API } from "../baseUrlProvider";
 export const StepperService = (formData = {}) => {
   return (dispatch) => {
     dispatch({
+      type: "REQUEST_ELECTION_SUBMIT",
+    });
+    dispatch({
       type: "SUBMIT_STEP_DATA",
       payload: formData,
     });
@@ -11,6 +14,9 @@ export const StepperService = (formData = {}) => {
 
 export const PositionServices = (formData = []) => {
   return (dispatch) => {
+    dispatch({
+      type: "REQUEST_ELECTION_SUBMIT",
+    });
     dispatch({
       type: "SUBMIT_STEP_POSITION",
       payload: formData,
@@ -23,7 +29,7 @@ export const CandidateServices = (formData = []) => {
     dispatch({
       type: "SUBMIT_STEP_CANDIDATE",
       payload: formData,
-    }); 
+    });
   };
 };
 export const DefineVoterServices = (formData = []) => {
@@ -36,16 +42,16 @@ export const DefineVoterServices = (formData = []) => {
 };
 
 export const SubmitServices = (formData = []) => {
-  return (dispatch) => {   
+  return (dispatch) => {
     dispatch({
-      type: "REQUEST_ELECTION_SUBMIT",
+      type: "REQUEST_CREATE_ELECTION",
     });
-    
+
     API.post("/election/create", formData)
       .then((response) => {
         if (response.status === 200) {
           dispatch({
-            type: "SUBMIT_DATA"
+            type: "SUBMIT_DATA",
           });
         } else {
           // TODO
@@ -57,7 +63,5 @@ export const SubmitServices = (formData = []) => {
         //   payload: error.response,
         // });
       });
-    
-    
   };
 };

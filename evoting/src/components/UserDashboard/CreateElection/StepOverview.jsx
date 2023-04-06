@@ -26,6 +26,7 @@ const StepOverview = ({ GoBack, setStepper }) => {
     (state) => state.stepperState
   );
   const [isCompleted, setCompleted] = useState(isSubmitted);
+  const [isLoad, setisLoad] = useState(isLoading);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const styles = {
@@ -36,7 +37,8 @@ const StepOverview = ({ GoBack, setStepper }) => {
 
   useEffect(() => {
     setCompleted(isSubmitted);
-  }, [isSubmitted]);
+    setisLoad(isLoading)
+  }, [isSubmitted,isLoading]);
 
   const Div = styled("div")(({ theme }) => ({
     ...theme.typography.button,
@@ -50,7 +52,8 @@ const StepOverview = ({ GoBack, setStepper }) => {
     setStepper(false);
   };
 
-  console.log("THE ISLOADING", isLoading);
+  console.log("THE Submitted", isSubmitted);
+  console.log("the loading", isLoad)
   return (
     <>
       <Box
@@ -277,6 +280,7 @@ const StepOverview = ({ GoBack, setStepper }) => {
               onClick={() => {
                 navigate("/users");
                 setStepper(true);
+                setCompleted(false)
               }}
             >
               Continue
@@ -284,7 +288,7 @@ const StepOverview = ({ GoBack, setStepper }) => {
           </>
         ) : (
           <>
-            {isLoading ? (
+            {isLoad ? (
               <Loader />
             ) : (
               <>

@@ -18,75 +18,78 @@ function uniqueCandidate(val) {
   }
 }
 
-const electionSchema = new Schema({
-  electionName: {
-    type: String,
-    required: true,
+const electionSchema = new Schema(
+  {
+    electionName: {
+      type: String,
+      required: true,
+    },
+    electionStartDate: {
+      type: String,
+      required: true,
+    },
+    electionEndDate: {
+      type: String,
+      required: true,
+    },
+    organizationName: {
+      type: String,
+      required: true,
+    },
+    position: {
+      type: Array,
+      of: new mongoose.Schema({
+        positionName: {
+          type: String,
+          required: true,
+        },
+        positionDescription: {
+          type: String,
+        },
+      }),
+    },
+    candidate: {
+      type: Array,
+      of: new mongoose.Schema({
+        candidateName: {
+          type: String,
+          required: true,
+        },
+        candidateEmail: {
+          type: String,
+          required: true,
+        },
+        candidatePhone: {
+          type: String,
+          required: true,
+        },
+        candidateDescription: {
+          type: String,
+          required: true,
+        },
+        candidatePosition: {
+          type: String,
+          required: true,
+        },
+        candidateImage: {
+          type: String,
+          required: true,
+        },
+      }),
+      validate: [uniqueCandidate, "Duplicate email or phone found "],
+    },
+    isVoter: {
+      type: Boolean,
+      default: false,
+    },
+    createdBy: {
+      type: Schema.Types.ObjectId,
+      ref: "users",
+      required: true,
+    },
   },
-  electionStartDate: {
-    type: String,
-    required: true,
-  },
-  electionEndDate: {
-    type: String,
-    required: true,
-  },  
-  organizationName: {
-    type: String,
-    required: true,
-  },
-  position: {
-    type: Array,
-    of: new mongoose.Schema({
-      positionName: {
-        type: String,
-        required: true,
-      },
-      positionDescription: {
-        type: String,
-      },
-    }),
-  },
-  candidate: {
-    type: Array,
-    of: new mongoose.Schema({
-      candidateName: {
-        type: String,
-        required: true,
-      },
-      candidateEmail: {
-        type: String,
-        required: true,
-      },
-      candidatePhone: {
-        type: String,
-        required: true,
-      },
-      candidateDescription: {
-        type: String,
-        required: true,
-      },
-      candidatePosition: {
-        type: String,
-        required: true,
-      },
-      candidateImage: {
-        type: String,
-        required: true,
-      },
-    }),
-    validate: [uniqueCandidate, "Duplicate email or phone found "],
-  },
-  isVoter: {
-    type: Boolean,
-    default: false,
-  },
-  createdBy: {
-    type: Schema.Types.ObjectId,
-    ref: "users",
-    required: true,
-  },
-});
+  { timestamps: true }
+);
 const ElectionModel = mongoose.model("election", electionSchema);
 
 export default ElectionModel;

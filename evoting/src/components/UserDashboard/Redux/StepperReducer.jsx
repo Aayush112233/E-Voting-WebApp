@@ -3,20 +3,26 @@ import { toast } from "react-toastify";
 const INITIAL_STATE = {
   formData: {},
   positions: {},
-  isSubmitted:false,
-  isLoading:false,
+  isSubmitted: false,
+  isLoading: false,
 };
- 
+
 const StepperReducer = (state, action) => {
   state = state || INITIAL_STATE;
 
   switch (action.type) {
-    case "REQUEST_ELECTION_SUBMIT": 
-    return{
-      ...state,
-      isSubmitted:false,
-      isLoading:true
-    }
+    case "REQUEST_ELECTION_SUBMIT":
+      return {
+        ...state,
+        isSubmitted: false,
+        isLoading: false,
+      };
+    case "REQUEST_CREATE_ELECTION":
+      return {
+        ...state,
+        isSubmitted: false,
+        isLoading: true,
+      };
     case "SUBMIT_STEP_DATA":
       return {
         ...state,
@@ -31,7 +37,7 @@ const StepperReducer = (state, action) => {
         ...state,
         formData: {
           ...state.formData,
-          position:action.payload,
+          position: action.payload,
         },
       };
     case "SUBMIT_STEP_CANDIDATE":
@@ -39,7 +45,7 @@ const StepperReducer = (state, action) => {
         ...state,
         formData: {
           ...state.formData,
-          candidate:action.payload,
+          candidate: action.payload,
         },
       };
     case "SUBMIT_VOTERS":
@@ -47,16 +53,16 @@ const StepperReducer = (state, action) => {
         ...state,
         formData: {
           ...state.formData,
-          voters:action.payload,
+          voters: action.payload,
         },
       };
-    
+
     case "SUBMIT_DATA":
       return {
         ...state,
-        isSubmitted:true,
+        isSubmitted: true,
         formData: {},
-        isLoading:false
+        isLoading: false,
       };
     case "SUBMIT_DATA_FAILURE":
       if (action.payload?.status === 401) {
@@ -68,7 +74,7 @@ const StepperReducer = (state, action) => {
       }
       return {
         ...state,
-        isSubmitted:true,
+        isSubmitted: true,
         formData: {},
       };
     default:

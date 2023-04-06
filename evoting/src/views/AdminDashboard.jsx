@@ -12,6 +12,7 @@ import { useEffect } from "react";
 import { fetchUserListService } from "../Services/authServices";
 import { getCookie } from "../config/storageUtil";
 import { Header } from "../Layouts/Admin/Header";
+import axios from "axios";
 
 export default function AdminDashboard({ children }) {
   const [open, setOpen] = useState(false);
@@ -38,7 +39,7 @@ export default function AdminDashboard({ children }) {
   );
 
   useEffect(() => {
-    dispatch(fetchUserListService());
+    dispatch(fetchUserListService());    
   }, []);
 
   return (

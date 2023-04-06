@@ -13,8 +13,6 @@ import PageviewIcon from "@mui/icons-material/Pageview";
 import { API } from "../../../baseUrlProvider";
 import ElectionView from "../../UserDashboard/ManageElection/ElectionView";
 
-
-
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
     backgroundColor: "black",
@@ -42,18 +40,18 @@ const ElectionManagement = ({ setSelectedLink, link }) => {
 
   const [elections, setElections] = useState([]);
   useEffect(() => {
-    getElectionByCreater()
+    getElectionByCreater();
   }, []);
 
-  const getElectionByCreater =() =>{
+  const getElectionByCreater = () => {
     API.get("/election/findAllElections")
-    .then((res) => {
-      setElections(res.data.elections);
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-  }
+      .then((res) => {
+        setElections(res.data.elections);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
   const handleView = (data) => {
     setOpen(true);
@@ -64,7 +62,16 @@ const ElectionManagement = ({ setSelectedLink, link }) => {
   }, []);
   return (
     <>
-      <Box width={1} marginY={1}>
+      <Box
+        sx={{
+          width: {
+            md: "70%",
+            xs: "95%",
+          },
+          marginX:"auto"
+        }}
+        marginY={1}
+      >
         <TextField
           label="Search"
           helperText="Type to search for a row"
@@ -77,104 +84,107 @@ const ElectionManagement = ({ setSelectedLink, link }) => {
           }}
           onChange={(event) => setSearchTerm(event.target.value)}
         />
+        <TableContainer component={Paper} sx={{ width: "100%" }}>
+          <Table sx={{ width: 1 }} aria-label="a dense table">
+            <TableHead>
+              <TableRow>
+                <TableCell
+                  sx={{ backgroundColor: "#2b2b2b", color: "#fafafa" }}
+                >
+                  S.N
+                </TableCell>
+                <TableCell
+                  align="right"
+                  sx={{ backgroundColor: "#2b2b2b", color: "#fafafa" }}
+                >
+                  Election Name
+                </TableCell>
+                <TableCell
+                  align="right"
+                  sx={{ backgroundColor: "#2b2b2b", color: "#fafafa" }}
+                >
+                  Starting Date
+                </TableCell>
+                <TableCell
+                  align="right"
+                  sx={{ backgroundColor: "#2b2b2b", color: "#fafafa" }}
+                >
+                  Ending Date
+                </TableCell>
+                <TableCell
+                  align="right"
+                  sx={{ backgroundColor: "#2b2b2b", color: "#fafafa" }}
+                >
+                  Organization Name
+                </TableCell>
+                <TableCell
+                  align="right"
+                  sx={{ backgroundColor: "#2b2b2b", color: "#fafafa" }}
+                >
+                  Election Code
+                </TableCell>
+                <TableCell
+                  align="right"
+                  sx={{ backgroundColor: "#2b2b2b", color: "#fafafa" }}
+                >
+                  Action
+                </TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {elections &&
+                elections
+                  .filter((row) =>
+                    row.electionName
+                      .toLowerCase()
+                      .includes(searchTerm.toLowerCase())
+                  )
+                  .map((row, index) => {
+                    const SN = index + 1;
+                    return (
+                      <>
+                        <StyledTableRow
+                          key={row._id}
+                          sx={{
+                            "&:last-child td, &:last-child th": { border: 0 },
+                          }}
+                        >
+                          <StyledTableCell component="th" scope="row">
+                            {SN}
+                          </StyledTableCell>
+                          <StyledTableCell align="right">
+                            {row.electionName}
+                          </StyledTableCell>
+                          <StyledTableCell align="right">
+                            {row.electionStartDate}
+                          </StyledTableCell>
+                          <StyledTableCell align="right">
+                            {row.electionEndDate}
+                          </StyledTableCell>
+                          <StyledTableCell align="right">
+                            {row.organizationName}
+                          </StyledTableCell>
+                          <StyledTableCell align="right">
+                            {row.code}
+                          </StyledTableCell>
+                          <StyledTableCell align="right">
+                            <IconButton
+                              onClick={() => {
+                                handleView(row);
+                              }}
+                            >
+                              <PageviewIcon style={{ position: "relative" }} />
+                            </IconButton>
+                          </StyledTableCell>
+                        </StyledTableRow>
+                      </>
+                    );
+                  })}
+            </TableBody>
+          </Table>
+        </TableContainer>
       </Box>
-      <TableContainer component={Paper} sx={{ width: "100%" }}>
-        <Table sx={{ width: 1 }} aria-label="a dense table">
-          <TableHead>
-            <TableRow>
-              <TableCell sx={{ backgroundColor: "#2b2b2b", color: "#fafafa" }}>
-                S.N
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{ backgroundColor: "#2b2b2b", color: "#fafafa" }}
-              >
-                Election Name
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{ backgroundColor: "#2b2b2b", color: "#fafafa" }}
-              >
-                Starting Date
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{ backgroundColor: "#2b2b2b", color: "#fafafa" }}
-              >
-                Ending Date
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{ backgroundColor: "#2b2b2b", color: "#fafafa" }}
-              >
-                Organization Name
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{ backgroundColor: "#2b2b2b", color: "#fafafa" }}
-              >
-                Election Code
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{ backgroundColor: "#2b2b2b", color: "#fafafa" }}
-              >
-                Action
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {elections &&
-              elections
-                .filter((row) =>
-                  row.electionName
-                    .toLowerCase()
-                    .includes(searchTerm.toLowerCase())
-                )
-                .map((row, index) => {
-                  const SN = index + 1;
-                  return (
-                    <>
-                      <StyledTableRow
-                        key={row._id}
-                        sx={{
-                          "&:last-child td, &:last-child th": { border: 0 },
-                        }}
-                      >
-                        <StyledTableCell component="th" scope="row">
-                          {SN}
-                        </StyledTableCell>
-                        <StyledTableCell align="right">
-                          {row.electionName}
-                        </StyledTableCell>
-                        <StyledTableCell align="right">
-                          {row.electionStartDate}
-                        </StyledTableCell>
-                        <StyledTableCell align="right">
-                          {row.electionEndDate}
-                        </StyledTableCell>
-                        <StyledTableCell align="right">
-                          {row.organizationName}
-                        </StyledTableCell>
-                        <StyledTableCell align="right">
-                          {row.code}
-                        </StyledTableCell>
-                        <StyledTableCell align="right">
-                          <IconButton
-                            onClick={() => {
-                              handleView(row);
-                            }}
-                          >
-                            <PageviewIcon style={{ position: "relative" }} />
-                          </IconButton>
-                        </StyledTableCell>
-                      </StyledTableRow>
-                    </>
-                  );
-                })}
-          </TableBody>
-        </Table>
-      </TableContainer>
+
       <ElectionView
         open={open}
         setOpen={setOpen}

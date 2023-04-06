@@ -247,6 +247,19 @@ class ElectionController {
     });
   };
 
+  static getTotalNoofElections = async (req, res, next) => {
+    try {
+      const totalElections = await ElectionModel.countDocuments({});
+      const voterDefined = await ElectionModel.countDocuments({
+        isVoter: true,
+      });
+      const openVoter = totalElections - voterDefined;
+      res.json({ totalElections, voterDefined, openVoter });
+    } catch (err) {
+      next(err);
+    }
+  };
+
   static UserVote = async (req, res, next) => {
     const { joinId } = req.params;
     const { voterId, candidateId, position } = req.body;
@@ -671,7 +684,7 @@ class ElectionController {
 
   static getAllElections = async (req, res, next) => {
     try {
-      const elections = await ElectionModel.find({});
+      const elections = await ElectionModel.find({}).sort({createdAt: -1});
       const electionsWithCodes = await Promise.all(
         elections.map(async (election) => {
           const code = await ElectionCodeModel.findOne({
@@ -688,6 +701,17 @@ class ElectionController {
       });
     } catch (error) {
       next({ status: 400, message: "Not Found" });
+    }
+  };
+
+  static getTotalNoofVotes = async (req, res, next) => {
+    try {
+      const totalVotes = await VoteRecord.countDocuments({});
+      res.status(200).json({
+        totalVotes,
+      });
+    } catch (err) {
+      next({ status: 500, message: err });
     }
   };
 }

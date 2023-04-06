@@ -28,9 +28,12 @@ router.post(
   UserController.changePassword
 );
 router.get("/loggedInInfo", checkAuth, UserController.loggedInUserInfo);
+router.get("/getTotalNoofUsers", UserController.getTotalNoofUsers);
 router.get("/getAllInquiries", checkAuth, UserController.getAllInquiries);
 router.put("/update/:userId", checkAuth, UserController.UserUpdate);
 router.delete("/delete/:userId", checkAuth, UserController.UserDelete);
 router.get("/getAll", checkAuth, UserController.GetAllUser);
+router.get('/pageviews',UserController.getPageViews);
+router.get('/addPageViews',UserController.postPageViews);
 
 export default router;
