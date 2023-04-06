@@ -12,6 +12,7 @@ const StepperReducer = (state, action) => {
 
   switch (action.type) {
     case "REQUEST_ELECTION_SUBMIT":
+    case "REQUEST_PREVIOUS_ELECTIOn":
       return {
         ...state,
         isSubmitted: false,
@@ -31,6 +32,18 @@ const StepperReducer = (state, action) => {
           ...action.payload,
         },
       };
+
+    case "SET_PREVIOUS_ELECTION":
+      return {
+        ...state,
+        formData : action.payload
+      }
+
+    case "RESET_PREVIOUS_ELECTION":
+      return {
+        ...state,
+        formData: {},
+      }
 
     case "SUBMIT_STEP_POSITION":
       return {

@@ -8,12 +8,15 @@ import {
   Button,
   Box,
   Card,
+  TextField,
+  MenuItem,
+  Menu,
 } from "@mui/material";
 import ElectionDetails from "../Steps/ElectionDetails";
 import PositionDetails from "../Steps/PositionDetails";
 import CandidateDetails from "../Steps/CandidateDetails";
 import StepOverview from "./StepOverview";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import PreDefineVoters from "../Steps/PredefineVoters";
 import BottomNavigation from "@mui/material/BottomNavigation";
 import BottomNavigationAction from "@mui/material/BottomNavigationAction";
@@ -23,6 +26,7 @@ import LocationOnIcon from "@mui/icons-material/LocationOn";
 import { Ballot, NoteAddOutlined } from "@mui/icons-material";
 import ManageElection from "../ManageElection/ManageElection";
 import { API } from "../../../baseUrlProvider";
+import { FetchPreviousElection, clearPreviousElection } from "../../../Services/stepperServices";
 
 const useStyles = styled((theme) => ({
   root: {
@@ -54,25 +58,31 @@ export default function StepForm({ setSelectedLink, link }) {
   const steps = getSteps();
   const { isSubmitted, isLoading } = useSelector((state) => state.stepperState);
   const [value, setValue] = React.useState(0);
+  const [selectedElection, setSelectedElection] = useState("");
+  const [dropDown, setDropDown] = useState({
+    value: "",
+    name: "",
+  });
+
+  const dispatch = useDispatch();
   useEffect(() => {
     setSelectedLink(link);
   }, []);
 
-
   const [elections, setElections] = useState([]);
   useEffect(() => {
-    getElectionByCreater()
+    getElectionByCreater();
   }, []);
 
-  const getElectionByCreater =() =>{
-    API.get("/election/getElectionByCreater")
-    .then((res) => {
-      setElections(res.data.elections);
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-  }
+  const getElectionByCreater = async() => {
+    await API.get("/election/getElectionByCreater")
+      .then((res) => {
+        setElections(res.data.elections);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
   const getStepContent = (step) => {
     switch (step) {
@@ -149,6 +159,30 @@ export default function StepForm({ setSelectedLink, link }) {
     setActiveStep(0);
   };
 
+  const handleSelectChange = async (e) => {
+    const id = e.target.value;
+    setSelectedElection(id)
+    API.get(`election/getElectionById/${id}`)
+      .then((res) => {
+        delete res.data.election._id;
+        delete res.data.election.isVoter;
+        AddVoter(id, res.data.election)
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+
+  const AddVoter = (id, data) =>{
+    API.get(`/election/getVotersByElection/${id}`).then((res)=>{
+      data.voters = res.data.voters.voters
+      dispatch(FetchPreviousElection(data))
+    }).catch((err)=>{
+      dispatch(FetchPreviousElection(data))
+    })
+  }
+
   return (
     <>
       <Box
@@ -216,6 +250,34 @@ export default function StepForm({ setSelectedLink, link }) {
             }}
           >
             <div>
+              {activeStep === 0 ? (
+                <>
+                  <TextField
+                    label="Selection Election"
+                    onChange={handleSelectChange}
+                    value={selectedElection}
+                    select
+                    helperText="You can use previous election and edit it as required"
+                    size="small"
+                    sx={{
+                      ml: 4,
+                      "& .MuiSvgIcon-root": {
+                        position: "relative",
+                      },
+                    }}
+                  >
+                    {elections?.map((item) => (
+                      <MenuItem key={item._id} value={item._id}>
+                        {item.electionName}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                  <Button variant="outlined" sx={{ ml: 1 }} onClick={()=>{dispatch(clearPreviousElection()); setSelectedElection("")}}>
+                    Clear
+                  </Button>
+                </>
+              ) : null}
+
               <Stepper
                 activeStep={activeStep}
                 sx={{
@@ -274,7 +336,7 @@ export default function StepForm({ setSelectedLink, link }) {
           <>
             <Card
               sx={{
-                width: {                 
+                width: {
                   md: "80%",
                   sm: "90%",
                   xs: "100%",
@@ -291,11 +353,14 @@ export default function StepForm({ setSelectedLink, link }) {
             >
               <div
                 style={{
-                  width:"100%",
-                  overflow:"auto"
+                  width: "100%",
+                  overflow: "auto",
                 }}
               >
-                <ManageElection elections={elections} refreshTable={getElectionByCreater}/>
+                <ManageElection
+                  elections={elections}
+                  refreshTable={getElectionByCreater}
+                />
               </div>
             </Card>
           </>

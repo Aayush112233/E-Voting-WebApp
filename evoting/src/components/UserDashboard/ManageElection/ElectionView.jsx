@@ -126,6 +126,7 @@ const ElectionView = ({ open, setOpen, election, refreshTable }) => {
         open={open}
         onClose={() => {
           setOpen(false);
+          setValue(0)
         }}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
@@ -213,7 +214,6 @@ const ElectionView = ({ open, setOpen, election, refreshTable }) => {
                 id={election._id}
                 refreshTable={getVoters}
                 setOpen={setOpen}
-                voters={voter}
               />
             </TabPanel>
           </Box>

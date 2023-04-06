@@ -585,6 +585,26 @@ class ElectionController {
     }
   };
 
+  static getElectionByElectionID = async (req, res, next) => {
+    const { id } = req.params;
+    const isIdValid = ObjectId.isValid(id);
+
+    if (!isIdValid) {
+      return next({ status: 400, message: "Invalid Id" });
+    }
+
+    const election = await ElectionModel.findById(id);
+
+    if (election) {
+      res.status(200).json({
+        election,
+      });
+    }
+    else{
+      next({status:400, message:"Election for the given Id not Found"})
+    }
+  };
+
   static UpdatePostionDetails = async (req, res, next) => {
     const { id } = req.params;
     const { position } = req.body;
@@ -684,7 +704,7 @@ class ElectionController {
 
   static getAllElections = async (req, res, next) => {
     try {
-      const elections = await ElectionModel.find({}).sort({createdAt: -1});
+      const elections = await ElectionModel.find({}).sort({ createdAt: -1 });
       const electionsWithCodes = await Promise.all(
         elections.map(async (election) => {
           const code = await ElectionCodeModel.findOne({

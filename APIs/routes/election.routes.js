@@ -26,6 +26,8 @@ router.get(
   "/getElectionByPreVoters/:id",
   ElectionController.getElectionByVoters
 );
+
+router.get('/getElectionById/:id', ElectionController.getElectionByElectionID)
 router.post("/getVoterByIdandEmail", ElectionController.getVoterByEmailAndCode);
 router.get(
   "/getAllElectionVoteCount",
@@ -46,5 +48,7 @@ router.post(
   ElectionController.CastVote,
   ElectionController.ChangeVoteStatus
 );
+
+
 
 export default router;

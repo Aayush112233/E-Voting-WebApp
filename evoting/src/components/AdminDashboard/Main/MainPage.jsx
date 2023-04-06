@@ -61,9 +61,7 @@ const MainPage = ({ setSelectedLink, link }) => {
 
   useEffect(() => {
     if (allUser && allUser.userInfo) {
-      console.log("before slice",allUser.userInfo)
       const recentUsers = allUser.userInfo.slice(0, 4);
-      console.log("after slice",recentUsers)
       getRecentlyJoinedUsers(recentUsers);
     }
   }, [allUser]);
@@ -242,7 +240,6 @@ const MainPage = ({ setSelectedLink, link }) => {
     // hide last border
   }));
 
-  console.log("The recent", recentElection);
   return (
     <>
       <Box

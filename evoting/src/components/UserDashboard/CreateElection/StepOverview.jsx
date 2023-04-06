@@ -51,9 +51,6 @@ const StepOverview = ({ GoBack, setStepper }) => {
     dispatch(SubmitServices(formData));
     setStepper(false);
   };
-
-  console.log("THE Submitted", isSubmitted);
-  console.log("the loading", isLoad)
   return (
     <>
       <Box

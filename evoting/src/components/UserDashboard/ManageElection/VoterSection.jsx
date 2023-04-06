@@ -27,9 +27,9 @@ import { AiTwotoneDelete } from "react-icons/ai";
 import { useState } from "react";
 import { FaFileExcel } from "react-icons/fa";
 
-const VoterSection = ({ id, setOpen, voters, refreshTable }) => {
+const VoterSection = ({ id, setOpen, refreshTable }) => {
   const [backgroundColor, setBackgroundColor] = useState("white");
-  const [voterDetails, setVoterDetails] = useState(voters);
+  const [voterDetails, setVoterDetails] = useState(null);
   const [voterRepeat, setVoterRepeat] = useState(false);
   const [error, setError] = useState("");
   const [duplicate, setDuplicate] = useState([]);
@@ -51,6 +51,19 @@ const VoterSection = ({ id, setOpen, voters, refreshTable }) => {
     maxHeight: "400px",
     overflow: "auto",
     maxWidth: "100%",
+  };
+
+  useEffect(()=>{
+    API.get(`election/getVotersByElection/${id}`)
+    .then((res) => {
+      setVoterDetails(res.data.voters.voters);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+  },[])
+  const getVoters = () => {
+    
   };
 
   const handleSaveToTable = async (data) => {
@@ -86,7 +99,7 @@ const VoterSection = ({ id, setOpen, voters, refreshTable }) => {
     setVoterRepeat(false);
   };
   const NoRows = () => {
-    if (voterDetails?.length === 0) {
+    if (voterDetails?.length === 0 || voterDetails == null) {
       return (
         <TableRow>
           <TableCell colSpan={5}>
@@ -183,7 +196,6 @@ const VoterSection = ({ id, setOpen, voters, refreshTable }) => {
     setVoterDetails(newTable);
   };
 
-  console.log(duplicate);
   return (
     <>
       <Grid container>

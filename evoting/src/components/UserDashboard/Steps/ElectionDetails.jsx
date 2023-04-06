@@ -37,7 +37,15 @@ const ElectionDetails = ({
       setValue("electionEndDate", formData.electionEndDate);
       setValue("organizationName", formData.organizationName);
     }
+    else{
+      setValue("electionName", "");
+      setValue("electionStartDate", "");
+      setValue("electionEndDate", "");
+      setValue("organizationName", "");
+    }
   }, [formData]);
+
+  console.log("The form data", formData)
   return (
     <Box sx={{ width: 1 }}>
       <Grid container spacing={2} sx={{ width: "100%" }}>
@@ -53,6 +61,9 @@ const ElectionDetails = ({
             name="electionName"
             id="standard-basic"
             label="Election Name"
+            InputLabelProps={{
+              shrink: formData && "true",
+            }}
             variant="standard"
             firstName
             fullWidth
@@ -110,6 +121,9 @@ const ElectionDetails = ({
             {...election("organizationName")}
             name="organizationName"
             label="Organization Name"
+            InputLabelProps={{
+              shrink: formData && "true",
+            }}
             variant="standard"
             fullWidth
           />

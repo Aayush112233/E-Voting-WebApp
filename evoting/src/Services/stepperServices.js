@@ -65,3 +65,15 @@ export const SubmitServices = (formData = []) => {
       });
   };
 };
+
+export const FetchPreviousElection = (formData = []) => {
+  return (dispatch) => {
+    dispatch({type : "SET_PREVIOUS_ELECTION", payload: formData })
+  }
+};
+
+export const clearPreviousElection = () =>{
+  return (dispatch) =>{
+    dispatch({type:"RESET_PREVIOUS_ELECTION"})
+  }
+}
