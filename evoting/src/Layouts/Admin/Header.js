@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Avatar, Badge, Box, Fade, Tooltip } from "@mui/material";
 import { createTheme, styled, ThemeProvider } from "@mui/material/styles";
 import ClickAwayListener from "@mui/base/ClickAwayListener";
@@ -23,6 +23,7 @@ import { darkModeService } from "../../Services/darkModeService";
 import { useSelector, useDispatch } from "react-redux";
 import { loginOutService } from "../../Services/authServices";
 import { useNavigate } from "react-router-dom";
+import { API } from "../../baseUrlProvider";
 const drawerWidth = 240;
 
 const AppBar = styled(MuiAppBar, {
@@ -45,6 +46,8 @@ const AppBar = styled(MuiAppBar, {
 
 export const Header = ({ setDark, setOpen, open, dark }) => {
   const [notification, setNotification] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [notificationCount, setNotificationCount] = useState(0)
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { userData } = useSelector((state) => state.userState);
@@ -59,6 +62,27 @@ export const Header = ({ setDark, setOpen, open, dark }) => {
   const handleClose = () => {
     setAnchorEl(null);
   };
+
+  useEffect(() => {
+    getAllNotifications();
+  }, []);
+
+  const getAllNotifications = () => {
+    API.get("/user/getAdminNotification")
+      .then((res) => {
+        setNotifications(res.data.notifications);
+        notificationCounts(res.data.notifications)
+      })
+      .catch((err) => {
+        console.log(err)
+      });
+  };
+
+  const notificationCounts = (data) =>{
+    const count = data?.filter((item)=>item.isSeen == false)
+    const number = count.length
+    setNotificationCount(number)
+  }
   return (
     <AppBar position="fixed" open={open} sx={{ backgroundColor: "white" }}>
       <Toolbar>
@@ -178,7 +202,7 @@ export const Header = ({ setDark, setOpen, open, dark }) => {
             }}
           >
             <div>
-              <Badge badgeContent={6} color="secondary">
+              <Badge badgeContent={notificationCount} color="secondary">
                 <MdCircleNotifications
                   onClick={() => {
                     setNotification(!notification);
@@ -208,7 +232,10 @@ export const Header = ({ setDark, setOpen, open, dark }) => {
                     width: "180%",
                   }}
                 >
-                  <Notification />
+                  <Notification
+                    getAllNotifications={getAllNotifications}
+                    notifications={notifications}
+                  />
                 </div>
               </Fade>
             </div>

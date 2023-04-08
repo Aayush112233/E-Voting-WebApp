@@ -44,9 +44,8 @@ const ViewPage = () => {
       return "Not Started";
     } else if (now > end) {
       return "Ended";
-    }
-    else{
-      return "Not Started"
+    } else {
+      return "Not Started";
     }
   };
 
@@ -132,11 +131,18 @@ const ViewPage = () => {
                           >
                             {position}
                           </Typography>
+                          {new Date() >= new Date(election.electionEndDate) ? (
+                            <Typography variant="body1">Winner : {groupedCandidates[position][0].voteCount !== 0 ? groupedCandidates[position][0].candidate.candidateName : "No Winner(No Vote Casted)"}</Typography>
+                          ) : null}
                         </React.Fragment>
                       }
                     />
                   </ListItem>
-                  <Divider variant="inset" component="li" sx={{width:"100%", marginLeft:0}} />
+                  <Divider
+                    variant="inset"
+                    component="li"
+                    sx={{ width: "100%", marginLeft: 0 }}
+                  />
                   <div style={{ maxHeight: "300px", overflow: "auto" }}>
                     {groupedCandidates[position].map((item) => {
                       return (

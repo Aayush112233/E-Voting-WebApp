@@ -1,4 +1,5 @@
 import transporter from "../config/emailConfig.js";
+import AdminNotification from "../models/AdminNotification.js";
 import ContactUs from "../models/ContactUsModel.js";
 
 class ContactMail {
@@ -6,10 +7,15 @@ class ContactMail {
     const { fullName, email, message } = req.body;
     if (fullName && email && message) {
       const contact = new ContactUs(req.body);
+      const notification = new AdminNotification({
+        notification:`You have a new Inquiry from ${fullName}`,
+        type:"Inquiry"
+      })
       contact.save(async function (err, doc) {
         if (err) {
           next({ status: 500, message: "Cannot Save the contact." });
         } else {
+          notification.save();
           const text = `Dear ${fullName},
 
             Thank you for contacting us. We appreciate your interest in our products and services.

@@ -13,6 +13,8 @@ router.post(
 );
 
 router.get("/getElectionByUser/:userId", ElectionController.GetElectionById);
+router.get("/getTotalElectionByUser",checkAuth,ElectionController.GetElectionCountUser);
+router.get("/getTotalVotesByUser",checkAuth,ElectionController.GetVoteCountUser);
 router.get("/getElectionByJoin/:joinId", ElectionController.GetElectionByJoins);
 router.get(
   "/getCandidateByElection",
@@ -33,6 +35,11 @@ router.get(
   "/getAllElectionVoteCount",
   ElectionController.getAllVoteCountByElection
 );
+router.get(
+  "/getAllElectionVoteCountByCreater",
+  checkAuth,
+  ElectionController.getAllElectionCountByCreater
+);
 router.get("/getElectionByCreater", checkAuth, ElectionController.getElectionByCreater);
 router.get("/getTotalNoOfElection", ElectionController.getTotalNoofElections);
 router.get("/getVotersByElection/:id", ElectionController.getVotersByElection);
@@ -42,6 +49,7 @@ router.put("/updateElectionDetails/:id", ElectionController.UpdateElectionDetail
 router.put("/updatePositionDetails/:id", ElectionController.UpdatePostionDetails);
 router.put("/updateCandidateDetails/:id", ElectionController.UpdateCandidateDetails);
 router.put("/updateVoters/:id", ElectionController.UpdateVotersForElection);
+router.get("/getNearestElection",checkAuth, ElectionController.getNearestElectionAlert);
 router.post(
   "/userVote/:joinId",
   ElectionController.UserVote,

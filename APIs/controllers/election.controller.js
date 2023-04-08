@@ -9,6 +9,7 @@ import ejs from "ejs";
 
 import PreDefinedVoter from "../models/preDefinedVoter.js";
 import transporter from "../config/emailConfig.js";
+import AdminNotification from "../models/AdminNotification.js";
 class ElectionController {
   static CreateElection = async (req, res, next) => {
     const {
@@ -50,6 +51,13 @@ class ElectionController {
         code: GenerateRandomCode(),
       });
 
+      const notification = new AdminNotification({
+        notification: `A new election was created by ${
+          req.user.firstName + " " + req.user.lastName
+        }`,
+        type: "Election",
+      });
+
       election.save(async function (err, doc) {
         if (err) {
           next({ status: 400, message: err });
@@ -59,6 +67,7 @@ class ElectionController {
             voterDefine.save();
           }
           eletionCode.save();
+          notification.save();
           const html = await ejs.renderFile("./Pages/ElectionCode.html", {
             code: eletionCode.code,
             userName: req.user.firstName + " " + req.user.lastName,
@@ -196,12 +205,35 @@ class ElectionController {
           voterId: voterId,
         },
       },
+      {
+        $sort: {
+          "election_info.electionStartDate": 1,
+        },
+      },
     ]).exec(function (err, electionDetails) {
       if (err) throw next({ status: 500, message: err });
       res.status(200).json({
         electionDetails,
       });
     });
+  };
+
+  static GetElectionCountUser = async (req, res) => {
+    const userId = req.user._id;
+    const voterId = mongoose.Types.ObjectId(userId);
+
+    const electionCount = await ElectionJoinModel.countDocuments({ voterId });
+
+    res.status(200).json({ electionCount });
+  };
+
+  static GetVoteCountUser = async (req, res) => {
+    const userId = req.user._id;
+    const voterId = mongoose.Types.ObjectId(userId);
+
+    const voteCount = await VoteRecord.countDocuments({ voterId });
+
+    res.status(200).json({ voteCount });
   };
 
   static GetElectionByJoins = async (req, res, next) => {
@@ -378,7 +410,7 @@ class ElectionController {
           }
         }
 
-        // Get the candidate details and total vote count
+        // Get the candidate details and total vote count, and sort by highest vote count
         const voteCounts = [];
         for (const candidate of election.candidate) {
           const candidateId = candidate._id.toString();
@@ -388,6 +420,7 @@ class ElectionController {
             voteCount: count,
           });
         }
+        voteCounts.sort((a, b) => b.voteCount - a.voteCount);
 
         res.status(200).json({
           election: election,
@@ -403,7 +436,6 @@ class ElectionController {
       next({ status: 400, message: "Election Id is missing" });
     }
   };
-
   static getElectionByVoters = async (req, res, next) => {
     const { id } = req.params;
     const idPattern = /^[0-9a-fA-F]{24}$/;
@@ -474,6 +506,56 @@ class ElectionController {
         );
         const election = await ElectionModel.findOne({
           _id: electionId,
+        }).lean();
+        if (election) {
+          const candidateVotes = {};
+          for (const vote of voteInfo) {
+            const candidateId = vote.candidateId.toString();
+            if (
+              election.candidate.some((c) => c._id.toString() === candidateId)
+            ) {
+              if (!candidateVotes[candidateId]) {
+                candidateVotes[candidateId] = 1;
+              } else {
+                candidateVotes[candidateId]++;
+              }
+            }
+          }
+          const totalVotes = Object.values(candidateVotes).reduce(
+            (a, b) => a + b,
+            0
+          );
+          voteCounts.push({
+            electionId: electionId,
+            electionName: election.electionName,
+            month: election.month,
+            totalVotes: totalVotes,
+          });
+        }
+      }
+      res.status(200).json(voteCounts);
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  static getAllElectionCountByCreater = async (req, res, next) => {
+    try {
+      const voteRecords = await VoteRecord.find();
+      const electionIds = voteRecords.map((vote) => vote.electionId.toString());
+      const uniqueElectionIds = [...new Set(electionIds)];
+      const voteCounts = [];
+
+      // get the user ID from the request or from the authenticated user
+      const userId = req.user._id;
+
+      for (const electionId of uniqueElectionIds) {
+        const voteInfo = voteRecords.filter(
+          (vote) => vote.electionId.toString() === electionId
+        );
+        const election = await ElectionModel.findOne({
+          _id: electionId,
+          createdBy: userId, // add the filter condition here
         }).lean();
         if (election) {
           const candidateVotes = {};
@@ -599,9 +681,8 @@ class ElectionController {
       res.status(200).json({
         election,
       });
-    }
-    else{
-      next({status:400, message:"Election for the given Id not Found"})
+    } else {
+      next({ status: 400, message: "Election for the given Id not Found" });
     }
   };
 
@@ -733,6 +814,53 @@ class ElectionController {
     } catch (err) {
       next({ status: 500, message: err });
     }
+  };
+
+  static getNearestElectionAlert = async (req, res, next) => {
+    const userId = req.user._id;
+
+    // Get all the elections and filter out the ones that have already ended
+    const elections = await ElectionJoinModel.aggregate([
+      {
+        $lookup: {
+          from: "elections",
+          localField: "electionId",
+          foreignField: "_id",
+          as: "election_info",
+        },
+      },
+      {
+        $project: {
+          election_info: 1
+        }
+      },
+    ]).exec();
+
+    const currentDate = new Date();
+    const upcomingElections = elections.filter((election) => {
+      const startDate = new Date(
+        Date.parse(election.election_info[0].electionStartDate)
+      );
+      const endDate = new Date(
+        Date.parse(election.election_info[0].electionEndDate)
+      );
+      return startDate > currentDate && endDate > currentDate;
+    });
+
+    // Sort the upcoming elections by their start date
+    upcomingElections.sort((a, b) => {
+      const aStartDate = new Date(
+        Date.parse(a.election_info[0].electionStartDate)
+      );
+      const bStartDate = new Date(
+        Date.parse(b.election_info[0].electionStartDate)
+      );
+      return aStartDate - bStartDate;
+    });
+
+    res.status(200).json({
+      upcomingElections,
+    });
   };
 }
 export default ElectionController;

@@ -7,6 +7,7 @@ import ejs from "ejs";
 import ImageModel from "../models/image.model.js";
 import ContactUs from "../models/ContactUsModel.js";
 import PageView from "../models/userVisit.model.js";
+import AdminNotification from "../models/AdminNotification.js";
 
 class UserController {
   static userRegistration = async (req, res, next) => {
@@ -144,7 +145,9 @@ class UserController {
   };
 
   static GetAllUser = async (req, res, next) => {
-    const userInfo = await UserModel.find({}).select("-password").sort({createdAt: -1});
+    const userInfo = await UserModel.find({})
+      .select("-password")
+      .sort({ createdAt: -1 });
     if (userInfo) {
       res.status(200).json({
         userInfo: userInfo,
@@ -389,6 +392,41 @@ class UserController {
       console.error(err);
       res.status(500).json({ error: "Server error" });
     }
+  };
+
+  static getAdminNotification = async (req, res, next) => {
+    try {
+      const notifications = await AdminNotification.find({});
+      if (notifications) {
+        res.status(200).json({
+          notifications,
+        });
+      } else {
+        next({ status: 400, message: "No Notification Found" });
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Server error" });
+    }
+  };
+
+  static updateNotification = async (req, res, next) => {
+    const { id } = req.params;
+    const isIdValid = ObjectId.isValid(id);
+    if (!isIdValid) {
+      return next({ status: 400, message: "Invalid Id" });
+    }
+
+    await AdminNotification.findByIdAndUpdate(
+      { _id: id },
+      {
+        isSeen: true,
+      }
+    );
+
+    res.status(200).json({
+      message: "Status Updated Successfully",
+    });
   };
 }
 

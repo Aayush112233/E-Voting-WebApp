@@ -35,5 +35,7 @@ router.delete("/delete/:userId", checkAuth, UserController.UserDelete);
 router.get("/getAll", checkAuth, UserController.GetAllUser);
 router.get('/pageviews',UserController.getPageViews);
 router.get('/addPageViews',UserController.postPageViews);
+router.get('/getAdminNotification',UserController.getAdminNotification);
+router.put('/updateNotification/:id',UserController.updateNotification);
 
 export default router;

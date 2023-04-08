@@ -121,6 +121,7 @@ const CandidateDetails = ({
   const [dialogOpen, setDialogOpen] = useState(false);
   const [info, setInfo] = useState(false);
   const [currentCandidate, setCurrentCandidate] = useState({});
+  const [error, setError] = useState(false)
 
   const styles = {
     backgroundColor: backgroundColor,
@@ -147,6 +148,11 @@ const CandidateDetails = ({
 
   const dispatch = useDispatch();
   const handleSaveToTable = (data) => {
+    if(preview === ""){
+      setError(true)
+      return
+    }
+
     var existingCandidate = candidates?.filter(
       (item) =>
         item.candidateEmail === data.candidateEmail ||
@@ -166,6 +172,7 @@ const CandidateDetails = ({
     setValue("candidatePhone", "");
     setValue("candidateName", "");
     setValue("candidateAddress", "");
+    setValue("candidateDescription", "");
     setPreview("");
   };
   // const readExcelFile = (file) => {
@@ -390,6 +397,7 @@ const CandidateDetails = ({
             <ImageUploadingButton
               value={image}
               onChange={(newImage) => {
+                setError(false)
                 setDialogOpen(true);
                 setImage(newImage);
               }}
@@ -420,6 +428,23 @@ const CandidateDetails = ({
           >
             Candidate already exists. Name, Email and Phone Number must be
             unique.
+          </Alert>
+        ) : null}
+        {error ? (
+          <Alert
+            sx={{
+              position: "relative",
+              mt: 2,
+              "& .MuiAlert-icon": {
+                position: "relative",
+                top: 6,
+                right: 10,
+              },
+            }}
+            severity="error"
+          >
+            Please Upload an Image of the candidate.
+            You can also preview it after adding to the table.
           </Alert>
         ) : null}
 
