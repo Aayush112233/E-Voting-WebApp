@@ -38,7 +38,7 @@ const Main = ({ setSelectedLink, link }) => {
   const [totalVoteCount, setTotalVoteCount] = useState(0);
   const [totalParticipated, setTotalparticiapated] = useState(0);
   const [electionMissedCount, setElectionMissed] = useState(0);
-const [lastElectionDetail, setLastElectionDetail] = useState(null)
+  const [lastElectionDetail, setLastElectionDetail] = useState(null);
   const [chartData, setChartData] = useState(null);
   useEffect(() => {
     setSelectedLink(link);
@@ -47,7 +47,7 @@ const [lastElectionDetail, setLastElectionDetail] = useState(null)
     getElectionParticipateCount();
     getElectionMissedCount();
     getTotalVotesOfCreaterElection();
-    lastElectionDetails()
+    lastElectionDetails();
   }, []);
   const cardStyle = {
     width: "100%",
@@ -214,13 +214,15 @@ const [lastElectionDetail, setLastElectionDetail] = useState(null)
       });
   };
 
-  const lastElectionDetails = () =>{
-    API.get(`/election/getlastElectionDetailsForUser`).then((res)=>{
-      setLastElectionDetail(res.data)
-    }).catch((err)=>{
-      console.log(err)
-    })
-  }
+  const lastElectionDetails = () => {
+    API.get(`/election/getlastElectionDetailsForUser`)
+      .then((res) => {
+        setLastElectionDetail(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
   const preparebarGraph = (data) => {
     const labels = data.map((election) => election.electionName);
@@ -356,36 +358,115 @@ const [lastElectionDetail, setLastElectionDetail] = useState(null)
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {lastElectionDetail ? <TableRow
-                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                  >
-                    <TableCell component="th" scope="row">
-                      <Typography
-                        sx={{
-                          textAlign: "center",
-                          mb: "10px",
-                          fontWeight: "bold",
-                        }}
-                      >
-                       {lastElectionDetail.electionName}
-                      </Typography>
-                      <Grid container spacing={2}>
-                        <Grid item xs={12} md={6}>
-                          <Card sx={summaryCardStyle}>{lastElectionDetail.mostVotesReceived}</Card>
+                  {lastElectionDetail ? (
+                    <TableRow
+                      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                    >
+                      <TableCell component="th" scope="row">
+                        <Typography
+                          sx={{
+                            textAlign: "center",
+                            mb: "10px",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          {lastElectionDetail.electionName}
+                        </Typography>
+                        <Grid container spacing={2}>
+                          <Grid item xs={12} md={6}>
+                            <Card sx={summaryCardStyle}>
+                              <Grid
+                                container
+                                justifyContent={"center"}
+                                textAlign={"center"}
+                              >
+                                <Grid item xs={12}>
+                                  <Typography
+                                    sx={{ fontSize: 19, fontWeight: "bold" }}
+                                  >
+                                    Most Votes Received
+                                  </Typography>
+                                </Grid>
+                                <Grid item xs={12}>
+                                  <Typography sx={{ fontSize: 16 }}>
+                                    {lastElectionDetail.mostVotesReceived}
+                                  </Typography>
+                                </Grid>
+                              </Grid>
+                            </Card>
+                          </Grid>
+                          <Grid item xs={12} md={6}>
+                            <Card sx={summaryCardStyle}>
+                              <Grid
+                                container
+                                justifyContent={"center"}
+                                textAlign={"center"}
+                              >
+                                <Grid item xs={12}>
+                                  <Typography
+                                    sx={{ fontSize: 19, fontWeight: "bold" }}
+                                  >
+                                    Total No of Votes
+                                  </Typography>
+                                </Grid>
+                                <Grid item xs={12}>
+                                  <Typography sx={{ fontSize: 16 }}>
+                                    {lastElectionDetail.totalVotes}
+                                  </Typography>
+                                </Grid>
+                              </Grid>
+                            </Card>
+                          </Grid>
+                          <Grid item xs={12} md={6}>
+                            <Card sx={summaryCardStyle}>
+                              <Grid
+                                container
+                                justifyContent={"center"}
+                                textAlign={"center"}
+                              >
+                                <Grid item xs={12}>
+                                  <Typography
+                                    sx={{ fontSize: 19, fontWeight: "bold" }}
+                                  >
+                                    Total Position
+                                  </Typography>
+                                </Grid>
+                                <Grid item xs={12}>
+                                  <Typography sx={{ fontSize: 16 }}>
+                                    {lastElectionDetail.numPositions}
+                                  </Typography>
+                                </Grid>
+                              </Grid>
+                            </Card>
+                          </Grid>
+                          <Grid item xs={12} md={6}>
+                            <Card sx={summaryCardStyle}>
+                              <Grid
+                                container
+                                justifyContent={"center"}
+                                textAlign={"center"}
+                              >
+                                <Grid item xs={12}>
+                                  <Typography
+                                    sx={{ fontSize: 19, fontWeight: "bold" }}
+                                  >
+                                    Total Candidates
+                                  </Typography>
+                                </Grid>
+                                <Grid item xs={12}>
+                                  <Typography sx={{ fontSize: 16 }}>
+                                    {lastElectionDetail.numCandidates}
+                                  </Typography>
+                                </Grid>
+                              </Grid>
+                            </Card>
+                          </Grid>
                         </Grid>
-                        <Grid item xs={12} md={6}>
-                          <Card sx={summaryCardStyle}>{lastElectionDetail.totalVotes}</Card>
-                        </Grid>
-                        <Grid item xs={12} md={6}>
-                          <Card sx={summaryCardStyle}>{lastElectionDetail.numPositions}</Card>
-                        </Grid>
-                        <Grid item xs={12} md={6}>
-                          <Card sx={summaryCardStyle}>{lastElectionDetail.numCandidates}</Card>
-                        </Grid>
-                      </Grid>
-                    </TableCell>
-                  </TableRow> : <TableRow>Not Past Election</TableRow>}
-                  
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    <TableRow>Not Past Election</TableRow>
+                  )}
                 </TableBody>
               </Table>
             </TableContainer>

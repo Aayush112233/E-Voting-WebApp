@@ -132,7 +132,7 @@ const MainPage = ({ setSelectedLink, link }) => {
     API.get("/election/getAllElectionVoteCount")
       .then((res) => {
         const labels = res.data.map((d) => d.electionName);
-        const data = res.data.map((d) => (d.totalVotes = 1000));
+        const data = res.data.map((d) => (d.totalVotes));
 
         const newChartData = {
           labels: labels,

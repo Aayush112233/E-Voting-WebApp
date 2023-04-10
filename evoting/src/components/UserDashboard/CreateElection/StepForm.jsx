@@ -166,6 +166,8 @@ export default function StepForm({ setSelectedLink, link }) {
       .then((res) => {
         delete res.data.election._id;
         delete res.data.election.isVoter;
+        delete res.data.election.createdAt;
+        delete res.data.election.updatedAt;
         AddVoter(id, res.data.election)
       })
       .catch((err) => {

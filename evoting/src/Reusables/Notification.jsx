@@ -14,16 +14,17 @@ import { Circle } from "@mui/icons-material";
 import DoneAllIcon from "@mui/icons-material/DoneAll";
 import { useNavigate } from "react-router-dom";
 import { API } from "../baseUrlProvider";
+import "../assets/customCss/customScroll.css"
 
 const Notification = ({ getAllNotifications, notifications }) => {
   const navigate = useNavigate();
   console.log("THE NOTTIFICATION", notifications);
 
-  const handleItemClick = async(item) => {
+  const handleItemClick = async (item) => {
     await API.put(`/user/updateNotification/${item._id}`)
       .then((res) => {
         console.log(res);
-        getAllNotifications()
+        getAllNotifications();
       })
       .catch((err) => {
         console.log(err);
@@ -38,6 +39,7 @@ const Notification = ({ getAllNotifications, notifications }) => {
   return (
     <>
       <List
+      className="scrollDiv"
         sx={{
           width: "100%",
           //   maxWidth: "500px",
@@ -45,6 +47,8 @@ const Notification = ({ getAllNotifications, notifications }) => {
           color: "black",
           borderRadius: "15px",
           ariaHidden: "true",
+          maxHeight: "500px",
+          overflow: "auto",
           boxShadow:
             "rgba(0, 0, 0, 0.25) 0px 0.0625em 0.0625em, rgba(0, 0, 0, 0.25) 0px 0.125em 0.5em, rgba(255, 255, 255, 0.1) 0px 0px 0px 1px inset",
         }}

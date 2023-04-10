@@ -461,10 +461,11 @@ const JoinElection = ({ setSelectedLink, link }) => {
                             View
                           </Button>
                         </div>
-                        <div style={{display:"flex", gap:"1rem"}}>
+                        <div style={{ display: "flex", gap: "1rem" }}>
                           <TwitterShareButton
-                            url={"https://example.com"}
-                            title={"I participated in an election!"}
+                            url={"https://evoting.com"}
+                            title={`I participated in ${item.election_info[0]?.electionName} from online voting app`}
+                            quote={"#voting #election2023"}
                           >
                             <TwitterIcon
                               style={{ position: "relative" }}
@@ -473,9 +474,9 @@ const JoinElection = ({ setSelectedLink, link }) => {
                             />
                           </TwitterShareButton>
                           <FacebookShareButton
-                            url={"https://example.com"}
-                            title={"I participated in an election!"}
-                            quote={"I participated in an election! #voting #election2023"}
+                            url={"https://evoting.com"}
+                            title={`I participated in ${item.election_info[0]?.electionName} from online voting app`}
+                            quote={"#voting #election2023"}
                           >
                             <FacebookIcon
                               style={{ position: "relative" }}

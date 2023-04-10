@@ -591,7 +591,9 @@ class ElectionController {
 
   static getElectionByCreater = async (req, res, next) => {
     try {
-      const elections = await ElectionModel.find({ createdBy: req.user._id });
+      const elections = await ElectionModel.find({
+        createdBy: req.user._id,
+      }).sort({ createdAt: -1 });
       const electionsWithCodes = await Promise.all(
         elections.map(async (election) => {
           const code = await ElectionCodeModel.findOne({
@@ -745,7 +747,6 @@ class ElectionController {
     if (electionStatus) {
       if (electionStatus.isVoter) {
         // Update the existing document with new voters array
-        console.log("The voters", voters);
         const updatedPreVoterInfo = await PreDefinedVoter.findOneAndUpdate(
           { electionId: id },
           {
@@ -921,7 +922,6 @@ class ElectionController {
       const electionJoins = await ElectionJoinModel.find({
         voterId: voterId,
       }).exec();
-
       // Query the election model to get all the completed elections
       const completedElections = await ElectionModel.find({
         electionEndDate: { $lt: new Date() },
