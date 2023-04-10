@@ -830,19 +830,24 @@ class ElectionController {
         },
       },
       {
+        $match: {
+          voterId: userId,
+        },
+      },
+      {
         $project: {
-          election_info: 1
-        }
+          election_info: 1,
+        },
       },
     ]).exec();
 
     const currentDate = new Date();
     const upcomingElections = elections.filter((election) => {
       const startDate = new Date(
-        Date.parse(election.election_info[0].electionStartDate)
+        Date.parse(election.election_info[0]?.electionStartDate)
       );
       const endDate = new Date(
-        Date.parse(election.election_info[0].electionEndDate)
+        Date.parse(election.election_info[0]?.electionEndDate)
       );
       return startDate > currentDate && endDate > currentDate;
     });
@@ -861,6 +866,132 @@ class ElectionController {
     res.status(200).json({
       upcomingElections,
     });
+  };
+
+  static getElectionParticipatedCount = async (req, res, next) => {
+    const userID = req.user._id;
+    const electionCount = await ElectionModel.find({
+      createdBy: userID,
+    }).countDocuments();
+    if (electionCount) {
+      res.status(200).json({
+        electionCount,
+      });
+    } else {
+      next({ status: 400, message: "No Election Found!" });
+    }
+  };
+
+  static getElectionMissed = async (req, res, next) => {
+    const userId = req.user._id;
+    try {
+      // find all the election join records for the user
+      const electionJoins = await ElectionJoinModel.find({ voterId: userId });
+      let missedCount = 0;
+
+      // loop through each election join record and check if the user has casted any vote or not
+      for (const electionJoin of electionJoins) {
+        const election = await ElectionModel.findById(electionJoin.electionId);
+
+        // check if the election has ended
+        const now = new Date();
+        if (now > new Date(election.electionEndDate)) {
+          const voteRecord = await VoteRecord.findOne({
+            voterId: userId,
+            electionId: electionJoin.electionId,
+          });
+          // if the vote record is null, it means the user has not casted any vote for this election
+          if (!voteRecord) {
+            missedCount++;
+          }
+        }
+      }
+
+      res.status(200).json({ missedCount });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  static getLastCompletedElectionDetails = async (req, res, next) => {
+    const voterId = req.user._id;
+
+    try {
+      // Find all the election_join records for the given voterId
+      const electionJoins = await ElectionJoinModel.find({
+        voterId: voterId,
+      }).exec();
+
+      // Query the election model to get all the completed elections
+      const completedElections = await ElectionModel.find({
+        electionEndDate: { $lt: new Date() },
+      }).sort({ electionEndDate: -1 });
+
+      // Find the last completed election that the user has voted in
+      let lastCompletedElection = null;
+      for (const election of completedElections) {
+        const electionJoin = electionJoins.find(
+          (ej) => ej.electionId.equals(election._id) && ej.votingStatus
+        );
+        if (electionJoin) {
+          lastCompletedElection = election;
+          break;
+        }
+      }
+
+      if (!lastCompletedElection) {
+        return res
+          .status(404)
+          .json({ message: "No completed elections found" });
+      }
+
+      // Query the election document to get the total number of positions and candidates
+      const electionName = lastCompletedElection.electionName;
+      const numPositions = lastCompletedElection.position.length;
+      const numCandidates = lastCompletedElection.candidate.length;
+
+      // Query the vote records to get the total vote count for each candidate
+      const voteCounts = {};
+      const voteRecords = await VoteRecord.find({
+        electionId: lastCompletedElection._id,
+      });
+      voteRecords.forEach((vote) => {
+        if (voteCounts[vote.candidateId]) {
+          voteCounts[vote.candidateId]++;
+        } else {
+          voteCounts[vote.candidateId] = 1;
+        }
+      });
+
+      // Find the candidate with the highest number of votes
+      let mostVotes = 0;
+      let mostVotesCandidate = null;
+      for (const candidateId in voteCounts) {
+        if (voteCounts[candidateId] > mostVotes) {
+          mostVotes = voteCounts[candidateId];
+          mostVotesCandidate = candidateId;
+        }
+      }
+      const candidateId = mostVotesCandidate;
+
+      const candidate = lastCompletedElection.candidate.find(
+        (c) => c._id.toString() === candidateId
+      );
+      const candidateName = candidate.candidateName;
+
+      // Return the result with the required information
+      const result = {
+        mostVotesReceived: candidateName,
+        electionName: electionName,
+        totalVotes: voteRecords.length,
+        numPositions: numPositions,
+        numCandidates: numCandidates,
+      };
+      res.status(200).json(result);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Server Error" });
+    }
   };
 }
 export default ElectionController;

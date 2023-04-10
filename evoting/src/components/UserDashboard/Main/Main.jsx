@@ -12,13 +12,15 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import electionParticipated from "../../../assets/images/election-participated.png";
 import totalVoteCasted from "../../../assets/images/vote-casted.png";
 import electionConducted from "../../../assets/images/election-conducted.png";
 import electionMissed from "../../../assets/images/election-missed.png";
 import "chart.js/auto";
 import { Bar } from "react-chartjs-2";
+import CountUp from "react-countup";
+
 import {
   Chart as ChartJs,
   BarElement,
@@ -27,12 +29,25 @@ import {
   CategoryScale,
   LinearScale,
 } from "chart.js";
+import { API } from "../../../baseUrlProvider";
 
 ChartJs.register(BarElement, Tooltip, Legend, CategoryScale, LinearScale);
 
 const Main = ({ setSelectedLink, link }) => {
+  const [totalElectionParticipated, setTotalElectionParticipated] = useState(0);
+  const [totalVoteCount, setTotalVoteCount] = useState(0);
+  const [totalParticipated, setTotalparticiapated] = useState(0);
+  const [electionMissedCount, setElectionMissed] = useState(0);
+const [lastElectionDetail, setLastElectionDetail] = useState(null)
+  const [chartData, setChartData] = useState(null);
   useEffect(() => {
     setSelectedLink(link);
+    getTotalElectionParticipated();
+    getTotalVoteCasted();
+    getElectionParticipateCount();
+    getElectionMissedCount();
+    getTotalVotesOfCreaterElection();
+    lastElectionDetails()
   }, []);
   const cardStyle = {
     width: "100%",
@@ -107,6 +122,13 @@ const Main = ({ setSelectedLink, link }) => {
     type: "bar",
     data: data,
     options: {
+      plugins: {
+        title: {
+          display: true,
+          text: "Your Last Election with Total Votes",
+          fontSize: 20,
+        },
+      },
       scales: {
         y: {
           beginAtZero: true,
@@ -118,8 +140,122 @@ const Main = ({ setSelectedLink, link }) => {
   const summaryCardStyle = {
     boxShadow:
       "rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px",
-    height: "100px",
+    height: "70px",
     padding: "10px",
+  };
+
+  const getTotalElectionParticipated = () => {
+    API.get("/election/getTotalElectionByUser")
+      .then((res) => {
+        setTotalElectionParticipated(
+          <CountUp
+            start={0}
+            end={res.data.electionCount}
+            duration={2.5}
+            separator=","
+          />
+        );
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const getTotalVoteCasted = () => {
+    API.get("/election/getTotalVotesByUser")
+      .then((res) => {
+        setTotalVoteCount(
+          <CountUp
+            start={0}
+            end={res.data.voteCount}
+            duration={2.5}
+            separator=","
+          />
+        );
+      })
+      .catch((err) => {});
+  };
+  const getElectionParticipateCount = () => {
+    API.get("/election/getElectionParticipateCount")
+      .then((res) => {
+        setTotalparticiapated(
+          <CountUp
+            start={0}
+            end={res.data.electionCount}
+            duration={2.5}
+            separator=","
+          />
+        );
+      })
+      .catch((err) => {});
+  };
+  const getElectionMissedCount = () => {
+    API.get("/election/getElectionMissed")
+      .then((res) => {
+        setElectionMissed(
+          <CountUp
+            start={0}
+            end={res.data.missedCount}
+            duration={2.5}
+            separator=","
+          />
+        );
+      })
+      .catch((err) => {});
+  };
+
+  const getTotalVotesOfCreaterElection = () => {
+    API.get("/election/getAllElectionVoteCountByCreater")
+      .then((res) => {
+        preparebarGraph(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const lastElectionDetails = () =>{
+    API.get(`/election/getlastElectionDetailsForUser`).then((res)=>{
+      setLastElectionDetail(res.data)
+    }).catch((err)=>{
+      console.log(err)
+    })
+  }
+
+  const preparebarGraph = (data) => {
+    const labels = data.map((election) => election.electionName);
+    const votes = data.map((election) => election.totalVotes);
+
+    const chartData = {
+      labels: labels,
+      datasets: [
+        {
+          label: "Total Votes",
+          data: votes,
+          backgroundColor: [
+            "rgba(75, 192, 192, 0.4)",
+            "rgba(75, 192, 192, 0.4)",
+            "rgba(75, 192, 192, 0.4)",
+            "rgba(75, 192, 192, 0.4)",
+            "rgba(75, 192, 192, 0.4)",
+            "rgba(75, 192, 192, 0.4)",
+            "rgba(75, 192, 192, 0.4)",
+          ],
+          borderColor: [
+            "rgba(75, 192, 192, 1)",
+            "rgba(75, 192, 192, 1)",
+            "rgba(75, 192, 192, 1)",
+            "rgba(75, 192, 192, 1)",
+            "rgba(75, 192, 192, 1)",
+            "rgba(75, 192, 192, 1)",
+            "rgba(75, 192, 192, 1)",
+          ],
+          borderWidth: 1,
+        },
+      ],
+    };
+
+    setChartData(chartData);
   };
   return (
     <>
@@ -135,7 +271,7 @@ const Main = ({ setSelectedLink, link }) => {
             >
               <Avatar sx={avatarStyle} src={electionParticipated}></Avatar>
               <Typography variant="h5" fontWeight={"bold"} color={"#005223"}>
-                1,00,2399
+                {totalElectionParticipated}
               </Typography>
               <Typography variant="h6" fontWeight={"bold"} color={"#005223"}>
                 Election Participated
@@ -151,7 +287,7 @@ const Main = ({ setSelectedLink, link }) => {
             >
               <Avatar sx={avatarStyle} src={totalVoteCasted}></Avatar>
               <Typography variant="h5" fontWeight={"bold"} color={"#001952"}>
-                1,00,2399
+                {totalVoteCount}
               </Typography>
               <Typography variant="h6" fontWeight={"bold"} color={"#001952"}>
                 Total Vote Casted
@@ -167,7 +303,7 @@ const Main = ({ setSelectedLink, link }) => {
             >
               <Avatar sx={avatarStyle} src={electionConducted}></Avatar>
               <Typography variant="h5" fontWeight={"bold"} color={"#524600"}>
-                1,00,2399
+                {totalParticipated}
               </Typography>
               <Typography variant="h6" fontWeight={"bold"} color={"#524600"}>
                 Election Conducted
@@ -183,7 +319,7 @@ const Main = ({ setSelectedLink, link }) => {
             >
               <Avatar sx={avatarStyle} src={electionMissed}></Avatar>
               <Typography variant="h5" fontWeight={"bold"} color={"#5c0301"}>
-                1,00,2399
+                {electionMissedCount}
               </Typography>
               <Typography variant="h6" fontWeight={"bold"} color={"#5c0301"}>
                 Election Missed
@@ -193,7 +329,11 @@ const Main = ({ setSelectedLink, link }) => {
         </Grid>
         <Grid container spacing={4} mt={2}>
           <Grid item xs={12} md={6}>
-            <Bar data={config.data} options={config.options} />
+            {chartData ? (
+              <Bar data={chartData} options={config.options} />
+            ) : (
+              "loading..."
+            )}
           </Grid>
           <Grid item xs={12} md={6}>
             <TableContainer component={Paper}>
@@ -216,7 +356,7 @@ const Main = ({ setSelectedLink, link }) => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  <TableRow
+                  {lastElectionDetail ? <TableRow
                     sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                   >
                     <TableCell component="th" scope="row">
@@ -227,30 +367,25 @@ const Main = ({ setSelectedLink, link }) => {
                           fontWeight: "bold",
                         }}
                       >
-                        Election Name
+                       {lastElectionDetail.electionName}
                       </Typography>
                       <Grid container spacing={2}>
                         <Grid item xs={12} md={6}>
-                          <Card sx={summaryCardStyle}>Most Vote Received</Card>
+                          <Card sx={summaryCardStyle}>{lastElectionDetail.mostVotesReceived}</Card>
                         </Grid>
                         <Grid item xs={12} md={6}>
-                          <Card sx={summaryCardStyle}>
-                            Total Vote
-                          </Card>
+                          <Card sx={summaryCardStyle}>{lastElectionDetail.totalVotes}</Card>
                         </Grid>
                         <Grid item xs={12} md={6}>
-                          <Card sx={summaryCardStyle}>
-                            No of Position
-                          </Card>
+                          <Card sx={summaryCardStyle}>{lastElectionDetail.numPositions}</Card>
                         </Grid>
                         <Grid item xs={12} md={6}>
-                          <Card sx={summaryCardStyle}>
-                            No of Candidate
-                          </Card>
+                          <Card sx={summaryCardStyle}>{lastElectionDetail.numCandidates}</Card>
                         </Grid>
                       </Grid>
                     </TableCell>
-                  </TableRow>
+                  </TableRow> : <TableRow>Not Past Election</TableRow>}
+                  
                 </TableBody>
               </Table>
             </TableContainer>

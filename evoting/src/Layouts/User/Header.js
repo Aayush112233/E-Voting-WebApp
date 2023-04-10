@@ -17,6 +17,7 @@ import Settings from "@mui/icons-material/Settings";
 import Logout from "@mui/icons-material/Logout";
 import { loginOutService } from "../../Services/authServices";
 import { API } from "../../baseUrlProvider";
+import logo from "../../assets/images/Logo.png";
 
 const drawerWidth = 240;
 
@@ -169,15 +170,22 @@ export const Header = ({ setOpen, open }) => {
                 right: 10,
                 marginRight: "20px",
               },
+              borderRadius: "20px",
             }}
             severity="success"
             color="info"
           >
-            Upcomming Election{" "}
-            <span style={{ fontWeight: "bold" }}>
-              {upcommingElection.electionName}
-            </span>{" "}
-            — Starts in {getTimeLeft(upcommingElection.electionStartDate)}
+            {upcommingElection ? (
+              <>
+                Upcoming Election{" "}
+                <span style={{ fontWeight: "bold" }}>
+                  {upcommingElection.electionName}
+                </span>{" "}
+                — Starts in {getTimeLeft(upcommingElection.electionStartDate)}
+              </>
+            ) : (
+              "No Upcoming Election"
+            )}
           </Alert>
           <Tooltip title="Account settings">
             <IconButton

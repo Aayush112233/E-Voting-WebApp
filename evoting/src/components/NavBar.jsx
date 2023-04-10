@@ -21,6 +21,7 @@ import { HiDotsVertical } from "react-icons/hi";
 import { useDispatch, useSelector } from "react-redux";
 import { loginOutService } from "../Services/authServices";
 import { useEffect } from "react";
+import logo from "../assets/images/Logo.png";
 const items = [
   {
     name: "Home",
@@ -72,16 +73,16 @@ export const NavigationBar = (props) => {
   const [anchorElUser, setAnchorElUser] = React.useState(null);
   const [role, setRole] = React.useState();
   const navigate = useNavigate();
-  const {userData} = useSelector((state) => state.userState)
+  const { userData } = useSelector((state) => state.userState);
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
   };
 
-  useEffect(()=>{
-    if(userData.userInfo){
-      setRole(userData.userInfo.role)
+  useEffect(() => {
+    if (userData.userInfo) {
+      setRole(userData.userInfo.role);
     }
-  },[userData])
+  }, [userData]);
   const handleCloseNavMenu = () => {
     setAnchorElNav(null);
   };
@@ -102,50 +103,32 @@ export const NavigationBar = (props) => {
     setAnchorEl(null);
   };
 
-  const handleLogOut =() =>{
+  const handleLogOut = () => {
     removeCookies("token");
-    navigate("/login")
-  }
+    navigate("/login");
+  };
 
-const  handleDashboard = () =>{
-  if(role === "user"){
-    navigate("/users")
-  }
-  else{
-    navigate("/admin")
-  }
-}
-const  handleProfileSetting = () =>{
-  if(role === "user"){
-    navigate("users/profile/manageInformation")
-  }
-  else{
-    navigate("admin/profile/manageInformation")
-  }
-}
+  const handleDashboard = () => {
+    if (role === "user") {
+      navigate("/users");
+    } else {
+      navigate("/admin");
+    }
+  };
+  const handleProfileSetting = () => {
+    if (role === "user") {
+      navigate("users/profile/manageInformation");
+    } else {
+      navigate("admin/profile/manageInformation");
+    }
+  };
 
   return (
     <>
       <AppBar sx={appBarSytle}>
         <Container>
           <Toolbar disableGutters>
-            <Typography
-              variant="h6"
-              noWrap
-              component="a"
-              href="/"
-              sx={{
-                mr: 2,
-                display: { xs: "none", md: "flex" },
-                fontFamily: "monospace",
-                fontWeight: 700,
-                letterSpacing: ".3rem",
-                color: "inherit",
-                textDecoration: "none",
-              }}
-            >
-              LOGO
-            </Typography>
+            <Avatar src={logo} sx={{ width: 70, height: 70, mr:2 }}></Avatar>
 
             <Box sx={{ flexGrow: 1.5, display: { xs: "flex", md: "none" } }}>
               <IconButton
@@ -239,7 +222,9 @@ const  handleProfileSetting = () =>{
             </Box>
             {isAuth() ? (
               <>
-                <Box sx={{ flexGrow: 0, display:"flex", alignItems:"center" }}>
+                <Box
+                  sx={{ flexGrow: 0, display: "flex", alignItems: "center" }}
+                >
                   <Link
                     style={{
                       textDecoration: "none",
@@ -253,14 +238,16 @@ const  handleProfileSetting = () =>{
                         display: { xs: "none", md: "flex", fontWeight: "bold" },
                         background: "white",
                       }}
-                      onClick={()=>{dispatch(loginOutService());}}
+                      onClick={() => {
+                        dispatch(loginOutService());
+                      }}
                     >
                       Logout
                     </ButtonCustom>
                   </Link>
                   <Tooltip title="Open settings">
                     <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                      <HiDotsVertical style={{position:"relative"}}/>
+                      <HiDotsVertical style={{ position: "relative" }} />
                     </IconButton>
                   </Tooltip>
                   <Menu
@@ -284,7 +271,9 @@ const  handleProfileSetting = () =>{
                       <Typography textAlign="center">Dashboard</Typography>
                     </MenuItem>
                     <MenuItem onClick={handleProfileSetting}>
-                      <Typography textAlign="center">Profile Setting</Typography>
+                      <Typography textAlign="center">
+                        Profile Setting
+                      </Typography>
                     </MenuItem>
                   </Menu>
                 </Box>

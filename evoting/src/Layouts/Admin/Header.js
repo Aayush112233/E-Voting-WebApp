@@ -19,7 +19,6 @@ import { MdDarkMode } from "react-icons/md";
 import { MdCircleNotifications } from "react-icons/md";
 import { MdOutlineDarkMode } from "react-icons/md";
 import { useState } from "react";
-import { darkModeService } from "../../Services/darkModeService";
 import { useSelector, useDispatch } from "react-redux";
 import { loginOutService } from "../../Services/authServices";
 import { useNavigate } from "react-router-dom";
@@ -47,7 +46,7 @@ const AppBar = styled(MuiAppBar, {
 export const Header = ({ setDark, setOpen, open, dark }) => {
   const [notification, setNotification] = useState(false);
   const [notifications, setNotifications] = useState([]);
-  const [notificationCount, setNotificationCount] = useState(0)
+  const [notificationCount, setNotificationCount] = useState(0);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { userData } = useSelector((state) => state.userState);
@@ -71,18 +70,18 @@ export const Header = ({ setDark, setOpen, open, dark }) => {
     API.get("/user/getAdminNotification")
       .then((res) => {
         setNotifications(res.data.notifications);
-        notificationCounts(res.data.notifications)
+        notificationCounts(res.data.notifications);
       })
       .catch((err) => {
-        console.log(err)
+        console.log(err);
       });
   };
 
-  const notificationCounts = (data) =>{
-    const count = data?.filter((item)=>item.isSeen == false)
-    const number = count.length
-    setNotificationCount(number)
-  }
+  const notificationCounts = (data) => {
+    const count = data?.filter((item) => item.isSeen == false);
+    const number = count.length;
+    setNotificationCount(number);
+  };
   return (
     <AppBar position="fixed" open={open} sx={{ backgroundColor: "white" }}>
       <Toolbar>

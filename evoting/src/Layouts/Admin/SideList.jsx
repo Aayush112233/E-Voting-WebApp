@@ -29,6 +29,7 @@ import {
   Container,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import logo from "../../assets/images/Logo.png";
 
 import { useMemo } from "react";
 import { useState } from "react";

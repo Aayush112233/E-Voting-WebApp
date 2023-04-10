@@ -25,6 +25,14 @@ import Modal from "@mui/material/Modal";
 import { useNavigate } from "react-router-dom";
 import ElectionCount from "../../../Reusables/ElectionCount";
 import { IoMdClose } from "react-icons/io";
+import {
+  TwitterShareButton,
+  FacebookShareButton,
+  LinkedinShareButton,
+  WhatsappShareButton,
+  TwitterIcon,
+  FacebookIcon,
+} from "react-share";
 
 const JoinElection = ({ setSelectedLink, link }) => {
   const navigate = useNavigate();
@@ -452,6 +460,29 @@ const JoinElection = ({ setSelectedLink, link }) => {
                           >
                             View
                           </Button>
+                        </div>
+                        <div style={{display:"flex", gap:"1rem"}}>
+                          <TwitterShareButton
+                            url={"https://example.com"}
+                            title={"I participated in an election!"}
+                          >
+                            <TwitterIcon
+                              style={{ position: "relative" }}
+                              size={32}
+                              round
+                            />
+                          </TwitterShareButton>
+                          <FacebookShareButton
+                            url={"https://example.com"}
+                            title={"I participated in an election!"}
+                            quote={"I participated in an election! #voting #election2023"}
+                          >
+                            <FacebookIcon
+                              style={{ position: "relative" }}
+                              size={32}
+                              round
+                            />
+                          </FacebookShareButton>
                         </div>
                       </Alert>
                     </Grid>

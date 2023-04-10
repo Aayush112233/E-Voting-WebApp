@@ -27,7 +27,8 @@ import { getAllElectionByJoin } from "../../../Services/electionServices";
 const VotePage = () => {
   const params = useParams();
   const navigate = useNavigate();
-  const { electionbyJoin } = useSelector((state) => state.joinElectionState);
+  // const { electionbyJoin } = useSelector((state) => state.joinElectionState);
+  const [electionByJoin, setElectionByJoin] = useState([]);
   const { userData } = useSelector((state) => state.userState);
   const [currentVoted, setCurrentVoted] = useState({});
   const [userId, setUserId] = useState();
@@ -40,8 +41,19 @@ const VotePage = () => {
   const [positions, setPositions] = useState([]);
 
   useEffect(() => {
-    dispatch(getAllElectionByJoin(params.id));
+    getElection()
+    // dispatch(getAllElectionByJoin(params.id));
   }, []);
+
+  const getElection = () =>{
+    API.get(`/election/getElectionByJoin/${params.id}`)
+      .then((response) => {
+        setElectionByJoin(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
 
   const style = {
     position: "absolute",
@@ -55,9 +67,9 @@ const VotePage = () => {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    
+
     backgroundColor: "#fff",
-    justifyContent:"between",
+    justifyContent: "between",
     color: "#000",
     textAlign: "center",
     borderRadius: "20px",
@@ -75,32 +87,32 @@ const VotePage = () => {
   }, [userData]);
   useEffect(() => {
     if (
-      electionbyJoin.length !== 0 &&
-      electionbyJoin.JoinDetail[0] &&
-      electionbyJoin.JoinDetail[0].election_info[0] &&
-      electionbyJoin.JoinDetail[0].position[0] &&
-      electionbyJoin.JoinDetail[0].candidate[0]
+      electionByJoin.length !== 0 &&
+      electionByJoin.JoinDetail[0] &&
+      electionByJoin.JoinDetail[0].election_info[0] &&
+      electionByJoin.JoinDetail[0].position[0] &&
+      electionByJoin.JoinDetail[0].candidate[0]
     ) {
-      setElection(electionbyJoin.JoinDetail[0].election_info[0]);
+      setElection(electionByJoin.JoinDetail[0].election_info[0]);
       setCandidate(
-        electionbyJoin.JoinDetail[0].candidate.length !== 0
-          ? electionbyJoin.JoinDetail[0].candidate
+        electionByJoin.JoinDetail[0].candidate.length !== 0
+          ? electionByJoin.JoinDetail[0].candidate
           : ""
       );
       setPositions(
-        electionbyJoin.JoinDetail[0].position.length !== 0
-          ? electionbyJoin.JoinDetail[0].position
+        electionByJoin.JoinDetail[0].position.length !== 0
+          ? electionByJoin.JoinDetail[0].position
           : ""
       );
     } else {
       setElection([]);
       setCandidate([]);
       setPositions([]);
-      if (electionbyJoin.length !== 0 && electionbyJoin.JoinDetail[0]) {
+      if (electionByJoin.length !== 0 && electionByJoin.JoinDetail[0]) {
         navigate("/users/joinElection");
       }
     }
-  }, [electionbyJoin]);
+  }, [electionByJoin]);
 
   useEffect(() => {
     if (positions) {
@@ -130,12 +142,13 @@ const VotePage = () => {
     };
 
     API.post(
-      `${process.env.REACT_APP_API_URL}/election/userVote/${electionbyJoin.JoinDetail[0]._id}`,
+      `${process.env.REACT_APP_API_URL}/election/userVote/${electionByJoin.JoinDetail[0]._id}`,
       data
     )
       .then((res) => {
         toast.success(`You have succesfully voted for ${position} position`);
-        dispatch(getAllElectionByJoin(params.id));
+        getElection()
+        setConfirmOpen(false);
       })
       .catch((err) => {
         toast.error(err.response.data.message);
@@ -312,10 +325,17 @@ const VotePage = () => {
                   alignItems: "end",
                 }}
               >
-                <Button variant="outlined" onClick={()=>{
-                  setConfirmOpen(false)
-                }}>Close</Button>
-                <Button variant="outlined" onClick={CastVote}>Confirm</Button>
+                <Button
+                  variant="outlined"
+                  onClick={() => {
+                    setConfirmOpen(false);
+                  }}
+                >
+                  Close
+                </Button>
+                <Button variant="outlined" onClick={CastVote}>
+                  Confirm
+                </Button>
               </div>
             </Box>
           </Fade>
