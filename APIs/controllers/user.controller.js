@@ -11,48 +11,60 @@ import AdminNotification from "../models/AdminNotification.js";
 
 class UserController {
   static userRegistration = async (req, res, next) => {
-    const { firstName, lastName, email, password, confirmPassword } = req.body;
+    try {
+      const { firstName, lastName, email, password, confirmPassword } =
+        req.body;
 
-    const user = await UserModel.findOne({ email: email });
-    if (user) {
-      next({ status: 400, message: "Email already in use" });
-    } else {
-      if (firstName && lastName && email && password && confirmPassword) {
-        if (password === confirmPassword) {
-          delete req.body.confirmPassword;
-          req.body.role = "user";
+      const user = await UserModel.findOne({ email: email });
 
-          await bcrypt.hash(password, 10, function (err, hash) {
-            if (err) {
-              next({ status: 400, message: "Unable to Register" });
-            } else {
-              req.body.password = hash;
-              const register = new UserModel(req.body);
-              register.save(function (err, doc) {
-                if (err) {
-                  next({ status: 400, message: err });
-                } else {
-                  res.status(200).json({
-                    result: req.body,
-                    message: "User Register Sucessfully",
-                  });
-                }
-              });
-            }
-          });
-        } else {
-          next({
-            status: 400,
-            message: "Password and Confirm Password didn't match",
-          });
-        }
-      } else {
-        next({ status: 400, message: "Invalid Form Submission" });
+      const phone = await UserModel.findOne({'contactInfo.phoneNumber': req.body.contactInfo.phoneNumber });
+
+      if(phone){
+        return next({status:400, message:"Phone Number already in use"})
       }
+      if (user) {
+        next({ status: 400, message: "Email already in use" });
+      } else {
+        if (firstName && lastName && email && password && confirmPassword) {
+          if (password === confirmPassword) {
+            delete req.body.confirmPassword;
+            req.body.role = "user";
+
+            await bcrypt.hash(password, 10, function (err, hash) {
+              if (err) {
+                next({ status: 400, message: "Unable to Register" });
+              } else {
+                req.body.password = hash;
+                const register = new UserModel(req.body);
+                register.save(function (err, doc) {
+                  if (err) {
+                    next({ status: 400, message: err });
+                  } else {
+                    res.status(200).json({
+                      result: req.body,
+                      message: "User Register Sucessfully",
+                    });
+                  }
+                });
+              }
+            });
+          } else {
+            next({
+              status: 400,
+              message: "Password and Confirm Password didn't match",
+            });
+          }
+        } else {
+          next({ status: 400, message: "Invalid Form Submission" });
+        }
+      }
+    } catch (error) {
+      next({ status: 500, message: "Internal Server Error" });
     }
   };
 
   static login = async (req, res, next) => {
+   try {
     const { email, password } = req.body;
     if (email && password) {
       const user = await UserModel.findOne({ email: email });
@@ -78,6 +90,10 @@ class UserController {
     } else {
       next({ status: 400, message: "Fields are empty." });
     }
+    
+   } catch (error) {
+    next({ status: 500, message: "Internal Server Error" });
+   }
   };
 
   static loggedInUserInfo = async (req, res, next) => {

@@ -25,9 +25,7 @@ export const AddNewUser = (formData = {}) => {
     API.post("/user/register", formData).then((response) => {
       if (response.status === 200) {
         dispatch({ type: "ADD_NEW_USER_SUCCESS", payload: response.data });
-      } else {
-        dispatch({ type: "ADD_NEW_USER_FAIL", payload: response.data });
-      }
+      } 
     })
     .catch((err)=>{
       dispatch({ type: "ADD_NEW_USER_FAIL", payload: err.response });
@@ -44,7 +42,7 @@ export const DeleteUser = (id) => {
         dispatch({ type: "DELETE_USER_SUCCESS", payload: response.data });
         dispatch(fetchAllUser());
       } else {
-        dispatch({ type: "ADD_NEW_USER_FAIL", payload: response.data });
+        dispatch({ type: "DELETE_USER_FAIL", payload: response.data });
       }
     });
   };

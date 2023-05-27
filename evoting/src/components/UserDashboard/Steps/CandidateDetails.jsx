@@ -148,7 +148,7 @@ const CandidateDetails = ({
 
   const dispatch = useDispatch();
   const handleSaveToTable = (data) => {
-    if(preview === ""){
+    if(preview === null || preview === "" || preview == undefined){
       setError(true)
       return
     }

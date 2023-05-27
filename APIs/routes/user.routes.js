@@ -16,11 +16,11 @@ conn.once("open", function () {
 router.post("/register", UserController.userRegistration);
 router.post("/login", UserController.login);
 // router.post('/upload/:id?',uploadImage, UserController.ImageUpload);
-router.post('/upload/:id?', UserController.ProfileImage);
+router.post('/upload/:id?',checkAuth, UserController.ProfileImage);
 //RESET PASSWORD
 router.post("/sendResetEmail", UserController.SendEmailToReset);
 router.post("/contactUs", ContactMail.GetContactInfo);
-router.post("/replyInquiry", ContactMail.ReplyInquiry);
+router.post("/replyInquiry",checkAuth, ContactMail.ReplyInquiry);
 router.post("/passwordReset/:id/:token", UserController.ResetUserPassword);
 router.post(
   "/changePassword/:userId",
@@ -28,14 +28,14 @@ router.post(
   UserController.changePassword
 );
 router.get("/loggedInInfo", checkAuth, UserController.loggedInUserInfo);
-router.get("/getTotalNoofUsers", UserController.getTotalNoofUsers);
+router.get("/getTotalNoofUsers",checkAuth, UserController.getTotalNoofUsers);
 router.get("/getAllInquiries", checkAuth, UserController.getAllInquiries);
 router.put("/update/:userId", checkAuth, UserController.UserUpdate);
 router.delete("/delete/:userId", checkAuth, UserController.UserDelete);
 router.get("/getAll", checkAuth, UserController.GetAllUser);
-router.get('/pageviews',UserController.getPageViews);
-router.get('/addPageViews',UserController.postPageViews);
-router.get('/getAdminNotification',UserController.getAdminNotification);
-router.put('/updateNotification/:id',UserController.updateNotification);
+router.get('/pageviews',checkAuth,UserController.getPageViews);
+router.get('/addPageViews',checkAuth,UserController.postPageViews);
+router.get('/getAdminNotification',checkAuth,UserController.getAdminNotification);
+router.put('/updateNotification/:id',checkAuth,UserController.updateNotification);
 
 export default router;

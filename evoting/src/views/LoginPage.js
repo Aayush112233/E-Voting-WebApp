@@ -88,7 +88,7 @@ export const LoginPage = () => {
         setTimeout(setIsSignIn(true), 5000);
       })
       .catch((e) => {
-        toast.error(e);
+        toast.error(e.response.data.message);
       });
   };
   const onLoginSubmit = async (data) => {

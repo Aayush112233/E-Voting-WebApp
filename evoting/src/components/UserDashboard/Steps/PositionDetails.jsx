@@ -20,6 +20,8 @@ import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { PositionServices } from "../../../Services/stepperServices";
 import { Stack } from "@mui/system";
+import { PositionAddSchema } from "../../../Validation/formValidation";
+import { yupResolver } from "@hookform/resolvers/yup";
 
 const PositionDetails = ({
   activeStep,
@@ -46,7 +48,7 @@ const PositionDetails = ({
     formState: { errors: positionError },
     setValue,
   } = useForm({
-    // resolver: yupResolver(PositionAddSchema),
+    resolver: yupResolver(PositionAddSchema),
   });
   const dispatch = useDispatch();
   const handleTextChange = () => {

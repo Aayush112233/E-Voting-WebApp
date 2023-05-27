@@ -8,7 +8,7 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import { DeleteUser, fetchAllUser } from "../../../Services/adminServices";
-import { Box, Grid, Modal, Typography } from "@mui/material";
+import { Box, Grid, Modal, TextField, Typography } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { useState } from "react";
 import { useEffect } from "react";
@@ -52,15 +52,18 @@ const style = {
 
 const ManageUser = () => {
   const [userDetails, setUserDetails] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteUserDetails, setDeleteUser] = useState(false);
   const [editUserDetails, setEditUser] = useState(false);
   const { allUser } = useSelector((state) => state.adminState);
   const { userAddedStatus } = useSelector((state) => state.adminState);
+  const [filteredUser, setFilterdUser] = useState([])
   const dispatch = useDispatch();
   useEffect(() => {
     setUserDetails(allUser.userInfo);
+    
   }, [allUser]);
 
   useEffect(() => {
@@ -92,6 +95,18 @@ const ManageUser = () => {
       <Typography variant="h4" textAlign={"center"}>
         User Information Table
       </Typography>
+      <TextField
+          label="Search"
+          helperText="Type to search for a row"
+          size="small"
+          sx={{
+            ml: 4,
+            "& .MuiSvgIcon-root": {
+              position: "relative",
+            },
+          }}
+          onChange={(event) => setSearchTerm(event.target.value)}
+        />
       <TableContainer component={Paper} sx={{ mt: 5, maxHeight: "500px" }}>
         <Table
           stickyHeader
@@ -111,7 +126,14 @@ const ManageUser = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {userDetails?.map((row, index) => {
+          {userDetails &&
+                userDetails
+                  .filter((row) =>
+                    row.firstName
+                      .toLowerCase()
+                      .includes(searchTerm.toLowerCase())
+                  )
+                  .map((row, index) => {
               const SN = index + 1;
               return (
                 <>

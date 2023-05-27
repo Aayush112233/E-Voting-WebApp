@@ -49,6 +49,7 @@ const ChangePassword = () => {
             name="oldPassword"
             id="standard-basic"
             label="Old Password"
+            type="password"
             variant="standard"
             helperText={errors.oldPassword ? errors.oldPassword.message : ""}
             {...passwordChange("oldPassword")}
@@ -60,6 +61,7 @@ const ChangePassword = () => {
             error={!!errors.newPassword}
             id="standard-basic"
             name="newPassword"
+            type="password"
             label="New Password"
             variant="standard"
             helperText={errors.newPassword ? errors.newPassword.message : ""}

@@ -13,15 +13,17 @@ export const Reply = ({ setReply, selectedInquiry, setOpen }) => {
   const handleMessageChange = (e) => {
     setError(false);
     setMessage(e.target.value);
+    setLoading(false)
   };
 
   const sendReply = () => {
-    setLoading(true);
+   
     const data = {
       to: selectedInquiry.email,
       message: message,
     };
     if (message !== "") {
+      setLoading(true);
       API.post("/user/replyInquiry", data)
         .then((res) => {
           toast.success("Reply send successfully");

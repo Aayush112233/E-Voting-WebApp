@@ -12,81 +12,85 @@ import transporter from "../config/emailConfig.js";
 import AdminNotification from "../models/AdminNotification.js";
 class ElectionController {
   static CreateElection = async (req, res, next) => {
-    const {
-      electionName,
-      electionStartDate,
-      electionEndDate,
-      maxVotes,
-      organizationName,
-      position,
-      candidate,
-      voters,
-    } = req.body;
-    if (
-      electionName &&
-      electionStartDate &&
-      electionEndDate &&
-      organizationName &&
-      position.length > 0 &&
-      candidate.length > 0
-    ) {
-      const startDate = new Date(electionStartDate);
-      const endDate = new Date(electionEndDate);
-      if (startDate >= endDate) {
-        return next({ status: 400, message: "The date range is invalid" });
-      }
-
-      if (voters?.length > 0) {
-        req.body.isVoter = true;
-      }
-
-      const election = new ElectionModel(req.body);
-      const voterDefine = new PreDefinedVoter({
-        electionId: election._id,
-        voters: voters,
-      });
-
-      const eletionCode = new ElectionCodeModel({
-        electionId: election._id,
-        code: GenerateRandomCode(),
-      });
-
-      const notification = new AdminNotification({
-        notification: `A new election was created by ${
-          req.user.firstName + " " + req.user.lastName
-        }`,
-        type: "Election",
-      });
-
-      election.save(async function (err, doc) {
-        if (err) {
-          next({ status: 400, message: err });
-        } else {
-          const email = req.user.email;
-          if (req.body.isVoter) {
-            voterDefine.save();
-          }
-          eletionCode.save();
-          notification.save();
-          const html = await ejs.renderFile("./Pages/ElectionCode.html", {
-            code: eletionCode.code,
-            userName: req.user.firstName + " " + req.user.lastName,
-            electionName: electionName,
-          });
-          await transporter.sendMail({
-            from: process.env.EMAIL_FROM,
-            to: email,
-            subject: "Election Code - Evoting",
-            html: html,
-          });
-          res.status(200).json({
-            result: req.body,
-            message: "Election Created Sucessfully",
-          });
+    try {
+      const {
+        electionName,
+        electionStartDate,
+        electionEndDate,
+        maxVotes,
+        organizationName,
+        position,
+        candidate,
+        voters,
+      } = req.body;
+      if (
+        electionName &&
+        electionStartDate &&
+        electionEndDate &&
+        organizationName &&
+        position.length > 0 &&
+        candidate.length > 0
+      ) {
+        const startDate = new Date(electionStartDate);
+        const endDate = new Date(electionEndDate);
+        if (startDate >= endDate) {
+          return next({ status: 400, message: "The date range is invalid" });
         }
-      });
-    } else {
-      next({ status: 400, message: "All Fields are required" });
+
+        if (voters?.length > 0) {
+          req.body.isVoter = true;
+        }
+
+        const election = new ElectionModel(req.body);
+        const voterDefine = new PreDefinedVoter({
+          electionId: election._id,
+          voters: voters,
+        });
+
+        const eletionCode = new ElectionCodeModel({
+          electionId: election._id,
+          code: GenerateRandomCode(),
+        });
+
+        const notification = new AdminNotification({
+          notification: `A new election was created by ${
+            req.user.firstName + " " + req.user.lastName
+          }`,
+          type: "Election",
+        });
+
+        election.save(async function (err, doc) {
+          if (err) {
+            next({ status: 400, message: err });
+          } else {
+            const email = req.user.email;
+            if (req.body.isVoter) {
+              voterDefine.save();
+            }
+            eletionCode.save();
+            notification.save();
+            const html = await ejs.renderFile("./Pages/ElectionCode.html", {
+              code: eletionCode.code,
+              userName: req.user.firstName + " " + req.user.lastName,
+              electionName: electionName,
+            });
+            await transporter.sendMail({
+              from: process.env.EMAIL_FROM,
+              to: email,
+              subject: "Election Code - Evoting",
+              html: html,
+            });
+            res.status(200).json({
+              result: req.body,
+              message: "Election Created Sucessfully",
+            });
+          }
+        });
+      } else {
+        next({ status: 400, message: "All Fields are required" });
+      }
+    } catch (error) {
+      next({ status: 500, message: "Server Error" });
     }
   };
 
@@ -128,55 +132,58 @@ class ElectionController {
 
   static JoinElection = async (req, res, next) => {
     const { code } = req.params;
-
-    if (code) {
-      if (code.length !== 7) {
-        return next({
-          status: 400,
-          message: "The elction code needs to be of 7 digits. Please Check",
-        });
-      }
-      const Election = await ElectionCodeModel.findOne({ code: code });
-      if (!Election) {
-        return next({
-          status: 400,
-          message: "An election for this code doesn't exist.",
-        });
-      }
-
-      const SameElection = await ElectionJoinModel.findOne({
-        electionId: Election.electionId,
-        voterId: req.body.createdBy,
-      });
-      if (SameElection) {
-        return next({
-          status: 400,
-          message: "You are already in the election.",
-        });
-      }
-
-      const ElectionDef = await ElectionModel.findOne({
-        _id: Election.electionId,
-      });
-
-      req.body.electionId = Election.electionId;
-      req.body.position = ElectionDef.position;
-      req.body.candidate = ElectionDef.candidate;
-      req.body.voterId = req.body.createdBy;
-      delete req.body.createdBy;
-      const ElectionJoin = new ElectionJoinModel(req.body);
-      ElectionJoin.save(function (err, doc) {
-        if (err) {
-          next({ status: 400, message: err });
-        } else {
-          res.status(200).json({
-            result: req.body,
-            message: `You are now a participant this election. `,
+    try {
+      if (code) {
+        if (code.length !== 7) {
+          return next({
+            status: 400,
+            message: "The elction code needs to be of 7 digits. Please Check",
           });
         }
-      });
-    } else {
-      return next({ status: 400, message: "Code is empty." });
+        const Election = await ElectionCodeModel.findOne({ code: code });
+        if (!Election) {
+          return next({
+            status: 400,
+            message: "An election for this code doesn't exist.",
+          });
+        }
+
+        const SameElection = await ElectionJoinModel.findOne({
+          electionId: Election.electionId,
+          voterId: req.body.createdBy,
+        });
+        if (SameElection) {
+          return next({
+            status: 400,
+            message: "You are already in the election.",
+          });
+        }
+
+        const ElectionDef = await ElectionModel.findOne({
+          _id: Election.electionId,
+        });
+
+        req.body.electionId = Election.electionId;
+        req.body.position = ElectionDef.position;
+        req.body.candidate = ElectionDef.candidate;
+        req.body.voterId = req.body.createdBy;
+        delete req.body.createdBy;
+        const ElectionJoin = new ElectionJoinModel(req.body);
+        ElectionJoin.save(function (err, doc) {
+          if (err) {
+            next({ status: 400, message: err });
+          } else {
+            res.status(200).json({
+              result: req.body,
+              message: `You are now a participant this election. `,
+            });
+          }
+        });
+      } else {
+        return next({ status: 400, message: "Code is empty." });
+      }
+    } catch (error) {
+      next({});
     }
   };
 
@@ -645,6 +652,17 @@ class ElectionController {
       electionEndDate &&
       organizationName
     ) {
+      const now = new Date();
+      const election = await ElectionModel.findById(id);
+
+      if (now >= election.electionStartDate) {
+        next({
+          status: 400,
+          message: "Cannot edit election details after election start date",
+        });
+        return;
+      }
+
       ElectionModel.findByIdAndUpdate(
         { _id: id },
         {
@@ -692,6 +710,15 @@ class ElectionController {
     const { id } = req.params;
     const { position } = req.body;
     if (position.length > 0) {
+      const now = new Date();
+      const election = await ElectionModel.findById(id);
+      if (now >= election.electionStartDate) {
+        next({
+          status: 400,
+          message: "Cannot edit election details after election start date",
+        });
+        return;
+      }
       ElectionModel.findByIdAndUpdate(
         { _id: id },
         {
@@ -717,6 +744,14 @@ class ElectionController {
     const { id } = req.params;
     const { candidate } = req.body;
     if (candidate.length > 0) {
+      const election = await ElectionModel.findById(id);
+      if (now >= election.electionStartDate) {
+        next({
+          status: 400,
+          message: "Cannot edit election details after election start date",
+        });
+        return;
+      }
       ElectionModel.findByIdAndUpdate(
         { _id: id },
         {
